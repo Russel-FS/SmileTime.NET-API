@@ -10,6 +10,10 @@ namespace SmileTimeNET_API.rest
     [Route("api/[controller]")]
     public class LoginApiController : ControllerBase
     {
-        
+         [HttpGet]
+        public IActionResult Get()
+        {
+            return Ok("flores solano");
+        }
     }
 }
