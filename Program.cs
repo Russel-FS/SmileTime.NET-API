@@ -1,9 +1,14 @@
-using Microsoft.AspNetCore.Identity; 
-using Microsoft.AspNetCore.Authentication.BearerToken;
-using SmileTimeNET_API.hubs;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using SmileTimeNET_API.Models;
+using SmileTimeNET_API.Data;
+using SmileTimeNET_API.Hubs;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
- 
+
 builder.Services.AddEndpointsApiExplorer(); // Agrega soporte para la exploración de la API
 builder.Services.AddSwaggerGen(); // Agrega soporte para Swagger
 builder.Services.AddSignalR(); // Agrega soporte para SignalR
@@ -18,17 +23,59 @@ builder.Services.AddCors(options =>
                .AllowCredentials();                // Permitir envío de cookies-autenticación
     });
 });
- 
 
- 
+// configuracion DbContext
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// configuracion Identity
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+// Configuracion JWT
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+    };
+
+    // Configuracion JWT para SignalR
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
+});
 
 var app = builder.Build();
 
- 
+
 app.UseRouting(); // Habilita el enrutamiento
 app.UseCors("AllowAngular"); // Habilita CORS
- 
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers(); // Mapea los controladores Web API
 app.MapHub<ChatHub>("/chatHub"); // Mapea el hub de SignalR
 
@@ -48,7 +95,7 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
@@ -60,7 +107,7 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
- 
+
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
