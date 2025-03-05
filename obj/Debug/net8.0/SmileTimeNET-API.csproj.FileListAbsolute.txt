@@ -31,3 +31,4 @@
 /workspaces/SmileTime.NET-API/SmileTimeNET-API/obj/Debug/net8.0/SmileTimeNET-API.pdb
 /workspaces/SmileTime.NET-API/SmileTimeNET-API/obj/Debug/net8.0/SmileTimeNET-API.genruntimeconfig.cache
 /workspaces/SmileTime.NET-API/SmileTimeNET-API/obj/Debug/net8.0/ref/SmileTimeNET-API.dll
+/workspaces/SmileTime.NET-API/SmileTimeNET-API/obj/Debug/net8.0/SmileTimeNET-API.sourcelink.json
