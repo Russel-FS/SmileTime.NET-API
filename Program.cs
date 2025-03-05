@@ -19,9 +19,7 @@ builder.Services.AddCors(options =>
     });
 });
  
- 
 
-// Configuracion identity
  
 
 
