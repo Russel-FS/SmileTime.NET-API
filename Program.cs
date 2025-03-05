@@ -1,13 +1,11 @@
 using SmileTimeNET_API.hubs;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddSignalR();
-builder.Services.AddControllers(); 
+ 
+builder.Services.AddEndpointsApiExplorer(); // Agrega soporte para la exploración de la API
+builder.Services.AddSwaggerGen(); // Agrega soporte para Swagger
+builder.Services.AddSignalR(); // Agrega soporte para SignalR
+builder.Services.AddControllers();  // Agrega soporte para controladores Web API
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", builder =>
@@ -18,6 +16,9 @@ builder.Services.AddCors(options =>
                .AllowCredentials();                // Permitir envío de cookies-autenticación
     });
 });
+
+
+
 
 
 var app = builder.Build();
