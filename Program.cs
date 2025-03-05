@@ -28,7 +28,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// configuracion Identity
+// configuracion Identity para autenticacion de usuarios
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
@@ -73,9 +73,9 @@ var app = builder.Build();
 app.UseRouting(); // Habilita el enrutamiento
 app.UseCors("AllowAngular"); // Habilita CORS
 
-app.UseAuthentication();
-app.UseAuthorization();
-
+app.UseAuthentication(); // Habilita la autenticación
+app.UseAuthorization(); // Habilita la autorización
+ 
 app.MapControllers(); // Mapea los controladores Web API
 app.MapHub<ChatHub>("/chatHub"); // Mapea el hub de SignalR
 
