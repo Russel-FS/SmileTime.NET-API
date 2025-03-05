@@ -11,8 +11,8 @@ namespace SmileTimeNET_API.Hubs
 
         public override async Task OnConnectedAsync()
         {
-            var userId = Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId != null)
+            var userId = Context?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId != null && Context != null)
             {
                 UserConnections[userId] = Context.ConnectionId;
             }
@@ -21,7 +21,7 @@ namespace SmileTimeNET_API.Hubs
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var userId = Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = Context?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId != null && UserConnections.ContainsKey(userId))
             {
                 UserConnections.Remove(userId);
@@ -31,7 +31,7 @@ namespace SmileTimeNET_API.Hubs
 
         public async Task SendPrivateMessage(string recipientUserId, string message)
         {
-            if (UserConnections.TryGetValue(recipientUserId, out string connectionId))
+            if (UserConnections.TryGetValue(recipientUserId, out string? connectionId))
             {
                 await Clients.Client(connectionId).SendAsync("ReceiveMessage", message);
             }
