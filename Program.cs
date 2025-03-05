@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Identity; 
+using Microsoft.AspNetCore.Authentication.BearerToken;
 using SmileTimeNET_API.hubs;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,21 +18,21 @@ builder.Services.AddCors(options =>
                .AllowCredentials();                // Permitir envío de cookies-autenticación
     });
 });
+ 
+ 
 
-
-
+// Configuracion identity
+ 
 
 
 var app = builder.Build();
 
-// Configuración del pipeline HTTP.
-app.UseRouting();
-// Habilita CORS para la aplicación Angular
-app.UseCors("AllowAngular");
-
-// configura la aplicación para usar SignalR
-app.MapControllers();
-app.MapHub<ChatHub>("/chatHub");
+ 
+app.UseRouting(); // Habilita el enrutamiento
+app.UseCors("AllowAngular"); // Habilita CORS
+ 
+app.MapControllers(); // Mapea los controladores Web API
+app.MapHub<ChatHub>("/chatHub"); // Mapea el hub de SignalR
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
