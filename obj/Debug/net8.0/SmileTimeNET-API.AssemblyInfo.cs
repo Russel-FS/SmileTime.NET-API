@@ -10,10 +10,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("10107dd9-60f7-4ce9-ba8d-afe125374fac")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("SmileTimeNET-API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3b5b36163456f922d6e9afa2a028309bce82c063")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2c593d43f335e9f0aff01fc94750fdbb8a3b97dd")]
 [assembly: System.Reflection.AssemblyProductAttribute("SmileTimeNET-API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SmileTimeNET-API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
