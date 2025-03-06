@@ -45,10 +45,18 @@ namespace SmileTimeNET_API.rest
                 return BadRequest("Contraseña incorrecta");
             }
 
-            // Generar token JWT
-            var token = GenerateJwtToken(user);
 
-            return Ok(new { token });
+            var tokenExpiration = DateTime.Now.AddDays(60); // 60 días de expiración
+            var token = GenerateJwtToken(user, tokenExpiration); // Generar token JWT
+
+            var response = new AuthResponse
+            {
+                Token = token,
+                Email = user.Email ?? string.Empty,
+                UserId = user.Id,
+                TokenExpiration = tokenExpiration
+            };
+            return Ok(response);
         }
         [HttpPost("register")]
         [AllowAnonymous]
@@ -72,16 +80,25 @@ namespace SmileTimeNET_API.rest
 
             if (result.Succeeded)
             {
-                // Generar token JWT para login automático
-                var token = GenerateJwtToken(user);
-                return Ok(new { token });
+
+                var tokenExpiration = DateTime.Now.AddDays(60);  // 60 días de expiración
+                var token = GenerateJwtToken(user, tokenExpiration);// Generar token JWT para login automático
+
+                var response = new AuthResponse
+                {
+                    Token = token,
+                    Email = user.Email ?? string.Empty,
+                    UserId = user.Id,
+                    TokenExpiration = tokenExpiration
+                };
+                return Ok(response);
             }
 
             return BadRequest(result.Errors);
         }
 
         // genera un token JWT con los datos del usuario y lo firma con la clave secreta
-        private string GenerateJwtToken(ApplicationUser user)
+        private string GenerateJwtToken(ApplicationUser user, DateTime? expires)
         {
 
             var claims = new List<Claim>
@@ -92,7 +109,6 @@ namespace SmileTimeNET_API.rest
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.Now.AddDays(1);
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
