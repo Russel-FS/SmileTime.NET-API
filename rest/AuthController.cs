@@ -42,11 +42,11 @@ namespace SmileTimeNET_API.rest
             var result = await _userManager.CheckPasswordAsync(user, model.Password);
             if (!result)
             {
-                return BadRequest("Invalid password");
+                return BadRequest("Contraseña incorrecta");
             }
 
             // Generar token JWT
-            var token = await GenerateJwtToken(user);
+            var token = GenerateJwtToken(user);
 
             return Ok(new { token });
         }
@@ -73,7 +73,7 @@ namespace SmileTimeNET_API.rest
             if (result.Succeeded)
             {
                 // Generar token JWT para login automático
-                var token = await GenerateJwtToken(user);
+                var token = GenerateJwtToken(user);
                 return Ok(new { token });
             }
 
@@ -81,8 +81,9 @@ namespace SmileTimeNET_API.rest
         }
 
         // genera un token JWT con los datos del usuario y lo firma con la clave secreta
-        private async Task<string> GenerateJwtToken(ApplicationUser user)
+        private string GenerateJwtToken(ApplicationUser user)
         {
+
             var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user?.Id ?? string.Empty),
@@ -100,7 +101,6 @@ namespace SmileTimeNET_API.rest
                 expires: expires,
                 signingCredentials: creds
             );
-
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
