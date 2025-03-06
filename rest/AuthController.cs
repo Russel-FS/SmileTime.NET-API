@@ -50,7 +50,37 @@ namespace SmileTimeNET_API.rest
 
             return Ok(new { token });
         }
+        [HttpPost("register")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        {
+            // Verificar si el usuario ya existe
+            var existingUser = await _userManager.FindByEmailAsync(model.Email ?? string.Empty);
+            if (existingUser != null)
+            {
+                return BadRequest("El email ya está registrado");
+            }
 
+            var user = new ApplicationUser
+            {
+                UserName = model.Email,
+                Email = model.Email,
+            };
+
+            // Agrega el nuevo usuario a la base de datos y  hashea la contraseña automáticamente
+            var result = await _userManager.CreateAsync(user, model.Password ?? string.Empty);
+
+            if (result.Succeeded)
+            {
+                // Generar token JWT para login automático
+                var token = await GenerateJwtToken(user);
+                return Ok(new { token });
+            }
+
+            return BadRequest(result.Errors);
+        }
+
+        // genera un token JWT con los datos del usuario y lo firma con la clave secreta
         private async Task<string> GenerateJwtToken(ApplicationUser user)
         {
             var claims = new List<Claim>
