@@ -24,9 +24,13 @@ builder.Services.AddCors(options =>
     });
 });
 
-// configuracion DbContext
+// configuracion DbContext para Entity Framework Core con MySQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    var serverVersion = ServerVersion.AutoDetect(connectionString);
+    options.UseMySql(connectionString, serverVersion);
+});
 
 // configuracion Identity para autenticacion de usuarios
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -75,7 +79,7 @@ app.UseCors("AllowAngular"); // Habilita CORS
 
 app.UseAuthentication(); // Habilita la autenticación
 app.UseAuthorization(); // Habilita la autorización
- 
+
 app.MapControllers(); // Mapea los controladores Web API
 app.MapHub<ChatHub>("/chatHub"); // Mapea el hub de SignalR
 

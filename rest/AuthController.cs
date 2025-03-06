@@ -31,6 +31,8 @@ namespace SmileTimeNET_API.rest
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
+            Console.WriteLine("Login");
+
             var user = await _userManager.FindByNameAsync(model.Email);
             if (user == null)
             {
@@ -44,32 +46,32 @@ namespace SmileTimeNET_API.rest
             }
 
             // Generar token JWT
-            var token = await  GenerateJwtToken(user);
+            var token = await GenerateJwtToken(user);
 
             return Ok(new { token });
         }
 
         private async Task<string> GenerateJwtToken(ApplicationUser user)
-    {
-        var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, user?.Id ?? string.Empty),    
-            new Claim(ClaimTypes.Email, user?.Email ?? string.Empty),         
+            var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user?.Id ?? string.Empty),
+            new Claim(ClaimTypes.Email, user?.Email ?? string.Empty),
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var expires = DateTime.Now.AddDays(1);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var expires = DateTime.Now.AddDays(1);
 
-        var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
-            claims: claims,
-            expires: expires,
-            signingCredentials: creds
-        );
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: expires,
+                signingCredentials: creds
+            );
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
     }
 }
