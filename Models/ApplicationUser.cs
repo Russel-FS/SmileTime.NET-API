@@ -4,6 +4,6 @@ namespace SmileTimeNET_API.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        // Puedes agregar propiedades adicionales aquí
+       
     }
 }
