@@ -33,13 +33,13 @@ namespace SmileTimeNET_API.rest
         {
             Console.WriteLine("Login");
 
-            var user = await _userManager.FindByNameAsync(model.Email);
+            var user = await _userManager.FindByNameAsync(model.Email ?? string.Empty);
             if (user == null)
             {
                 return BadRequest("Usuario no encontrado");
             }
 
-            var result = await _userManager.CheckPasswordAsync(user, model.Password);
+            var result = await _userManager.CheckPasswordAsync(user, model.Password ?? string.Empty);
             if (!result)
             {
                 return BadRequest("Contraseña incorrecta");

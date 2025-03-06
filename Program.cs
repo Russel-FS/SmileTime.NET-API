@@ -36,6 +36,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+ 
+// Configuracion de opciones de contraseña
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireDigit = false;  // No requiere números en la contraseña
+    options.Password.RequireNonAlphanumeric = false; // No requiere caracteres especiales
+    options.Password.RequiredLength = 6; // Longitud mínima de la contraseña
+});
 
 // Configuracion JWT
 builder.Services.AddAuthentication(options =>
@@ -44,9 +52,10 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
+    
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = true,
+        ValidateIssuer = true, 
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
