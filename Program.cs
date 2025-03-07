@@ -36,7 +36,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
- 
+
 // Configuracion de opciones de contraseña
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -45,6 +45,14 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequiredLength = 6; // Longitud mínima de la contraseña
 });
 
+
+// Verificar si la clave JWT key esta configurada
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrEmpty(jwtKey))
+{
+    throw new ArgumentNullException("Jwt:Key", "⚠️ Jwt:Key no existe o no es válido");
+}
+
 // Configuracion JWT
 builder.Services.AddAuthentication(options =>
 {
@@ -52,10 +60,11 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
-    
+
+    //  Configuracion JWT para autenticacion
     options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true, 
+    { 
+        ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
@@ -64,7 +73,7 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
     };
 
-    // Configuracion JWT para SignalR
+    // Configuracion de JWT para SignalR
     options.Events = new JwtBearerEvents
     {
         OnMessageReceived = context =>
