@@ -46,7 +46,7 @@ builder.Services.Configure<IdentityOptions>(options =>
 });
 
 
-// Verificar si la clave JWT key esta configurada correctamente
+// Verificar si la clave JWT key si existe
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey))
 {
@@ -63,7 +63,7 @@ builder.Services.AddAuthentication(options =>
 
     //  Configuracion JWT para autenticacion
     options.TokenValidationParameters = new TokenValidationParameters
-    { 
+    {
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
