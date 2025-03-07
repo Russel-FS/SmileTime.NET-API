@@ -46,7 +46,7 @@ builder.Services.Configure<IdentityOptions>(options =>
 });
 
 
-// Verificar si la clave JWT key esta configurada
+// Verificar si la clave JWT key esta configurada correctamente
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey))
 {
