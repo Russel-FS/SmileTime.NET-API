@@ -17,7 +17,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", builder =>
     {
-        builder.WithOrigins("https://cuddly-space-rotary-phone-7v556pxvgx7x3v5-4200.app.github.dev") // Origen permitido
+        builder.WithOrigins("https://fantastic-guide-jj77vqgjx4wp34p7-4200.app.github.dev") // Origen permitido
                .AllowAnyHeader()                   // Permitir cualquier header
                .AllowAnyMethod()                   // Permitir cualquier método HTTP
                .AllowCredentials();                // Permitir envío de cookies-autenticación
