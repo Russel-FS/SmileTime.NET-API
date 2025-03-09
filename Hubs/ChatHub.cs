@@ -29,6 +29,10 @@ namespace SmileTimeNET_API.Hubs
             await base.OnDisconnectedAsync(exception);
         }
 
+        public async Task SendMessage(string user, string message)
+        {
+            await Clients.All.SendAsync("ReceiveMessage", user, message);
+        }
         public async Task SendPrivateMessage(string recipientUserId, string message)
         {
             if (UserConnections.TryGetValue(recipientUserId, out string? connectionId))
