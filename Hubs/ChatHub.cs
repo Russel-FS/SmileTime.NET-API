@@ -40,5 +40,11 @@ namespace SmileTimeNET_API.Hubs
                 await Clients.Client(connectionId).SendAsync("ReceiveMessage", message);
             }
         }
+
+
+        public async Task UserTyping(string userId, bool isTyping)
+        {
+            await Clients.All.SendAsync("UserTypingStatus", userId, isTyping);
+        }
     }
 }
