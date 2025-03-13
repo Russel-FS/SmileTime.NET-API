@@ -41,8 +41,7 @@ namespace SmileTimeNET_API.Hubs
             }
         }
 
-
-        public async Task UserTyping(string userId, bool isTyping)
+        public async Task UserTyping(Object userId, bool isTyping)
         {
             await Clients.All.SendAsync("UserTypingStatus", userId, isTyping);
         }
