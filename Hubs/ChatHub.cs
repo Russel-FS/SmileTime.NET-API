@@ -1,30 +1,58 @@
+using System.Collections.Concurrent;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using SmileTimeNET_API.Models;
 
 namespace SmileTimeNET_API.Hubs
 {
     [Authorize]
     public class ChatHub : Hub
     {
-        private static Dictionary<string, string> UserConnections = new Dictionary<string, string>();
+        private static ConcurrentDictionary<string, ConnectedUser> ConnectedUsers = new ConcurrentDictionary<string, ConnectedUser>();
 
         public override async Task OnConnectedAsync()
         {
-            var userId = Context?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = Context.User;
+            var userId = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var username = user?.FindFirst(ClaimTypes.Name)?.Value;
+
             if (userId != null && Context != null)
             {
-                UserConnections[userId] = Context.ConnectionId;
+                var connectedUser = new ConnectedUser
+                {
+                    UserId = userId,
+                    ConnectionId = Context.ConnectionId,
+                    Username = username ?? "Anonymous",
+                    ConnectedAt = DateTime.UtcNow,
+                    IsOnline = true
+                };
+
+                ConnectedUsers.AddOrUpdate(userId, connectedUser, (key, oldValue) =>
+                {
+                    oldValue.ConnectionId = Context.ConnectionId;
+                    oldValue.IsOnline = true;
+                    return oldValue;
+                });
+
+                await Clients.Others.SendAsync("UserConnected", new
+                {
+                    UserId = userId,
+                    Username = connectedUser.Username,
+                    IsOnline = true
+                });
             }
+ 
             await base.OnConnectedAsync();
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             var userId = Context?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId != null && UserConnections.ContainsKey(userId))
+            if (userId != null && ConnectedUsers.TryGetValue(userId, out var user))
             {
-                UserConnections.Remove(userId);
+                user.IsOnline = false;
+                await Clients.Others.SendAsync("UserDisconnected", userId);
             }
             await base.OnDisconnectedAsync(exception);
         }
@@ -37,9 +65,24 @@ namespace SmileTimeNET_API.Hubs
         }
         public async Task SendPrivateMessage(string recipientUserId, string message)
         {
-            if (UserConnections.TryGetValue(recipientUserId, out string? connectionId))
+            var senderId = Context?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(senderId))
+                return;
+
+            if (ConnectedUsers.TryGetValue(recipientUserId, out var recipient))
             {
-                await Clients.Client(connectionId).SendAsync("ReceiveMessage", message);
+                var senderUser = ConnectedUsers.GetValueOrDefault(senderId);
+                var messageData = new
+                {
+                    SenderId = senderId,
+                    SenderName = senderUser?.Username,
+                    Message = message,
+                    Timestamp = DateTime.UtcNow
+                };
+
+                await Clients.Client(recipient.ConnectionId ?? string.Empty).SendAsync("ReceivePrivateMessage", messageData);
+
+                await Clients.Caller.SendAsync("ReceivePrivateMessage", messageData);
             }
         }
 
@@ -47,5 +90,18 @@ namespace SmileTimeNET_API.Hubs
         {
             await Clients.All.SendAsync("UserTypingStatus", userId, isTyping);
         }
+
+        //Usuarios en linea
+        public async Task GetOnlineUsers()
+        {
+            var onlineUsers = ConnectedUsers.Values
+                .Where(u => u.IsOnline)
+                .Select(u => new { u.UserId, u.Username, u.IsOnline });
+
+            await Clients.Caller.SendAsync("OnlineUsers", onlineUsers);
+        }
+
+
+
     }
 }

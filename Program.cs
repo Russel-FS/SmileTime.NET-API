@@ -42,7 +42,7 @@ builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Password.RequireDigit = false;  // No requiere números en la contraseña
     options.Password.RequireNonAlphanumeric = false; // No requiere caracteres especiales
-    options.Password.RequiredLength = 6; // Longitud mínima de la contraseña
+    options.Password.RequiredLength = 6; // Longitud mínima de la contraseña: (comentario) no modificar esto para los que revisen el código
 });
 
 
