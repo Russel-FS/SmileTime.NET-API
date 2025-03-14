@@ -17,7 +17,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", builder =>
     {
-        builder.WithOrigins("https://supreme-zebra-g4rjvj9x7qp5c9vwg-4200.app.github.dev") // Origen permitido
+        builder.WithOrigins("https://refactored-pancake-5grpx4w7q9wjf7jg7-4200.app.github.dev") // Origen permitido
                .AllowAnyHeader()                   // Permitir cualquier header
                .AllowAnyMethod()                   // Permitir cualquier método HTTP
                .AllowCredentials();                // Permitir envío de cookies-autenticación
