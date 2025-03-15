@@ -12,5 +12,10 @@ namespace SmileTimeNET_API.Models
         public string? Username { get; set; }
         public DateTime ConnectedAt { get; set; }
         public bool IsOnline { get; set; }
+
+        public override string ToString()
+        {
+            return $"ID: {UserId}, Usuario: {Username}, Conexión: {ConnectionId}, Conectado: {ConnectedAt}, En línea: {IsOnline}";
+        }
     }
 }

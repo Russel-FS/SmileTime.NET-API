@@ -103,8 +103,12 @@ namespace SmileTimeNET_API.rest
 
             var claims = new List<Claim>
         {
+            // informacion del perfil
             new Claim(ClaimTypes.NameIdentifier, user?.Id ?? string.Empty),
             new Claim(ClaimTypes.Email, user?.Email ?? string.Empty),
+            new Claim(ClaimTypes.Name, user?.UserName ?? string.Empty),
+            // informacion del rol
+            new Claim(ClaimTypes.Role, "User")
         };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));

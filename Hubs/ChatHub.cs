@@ -35,6 +35,7 @@ namespace SmileTimeNET_API.Hubs
                     return oldValue;
                 });
 
+                Console.WriteLine($"Usuario Conectado: {connectedUser.ToString()}");
                 await Clients.Others.SendAsync("UserConnected", new
                 {
                     UserId = userId,
