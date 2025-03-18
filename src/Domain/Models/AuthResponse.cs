@@ -11,5 +11,6 @@ namespace SmileTimeNET_API.Models
         public string Email { get; set; } = string.Empty;
         public string UserId { get; set; } = string.Empty;
         public DateTime TokenExpiration { get; set; }
+        public string MessageResponse { get; set; } = string.Empty;
     }
 }

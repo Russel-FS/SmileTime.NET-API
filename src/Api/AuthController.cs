@@ -43,49 +43,66 @@ namespace SmileTimeNET_API.rest
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            Console.WriteLine("Login");
+            var response = new AuthResponse();
+
+            // Verificar si el email y la contraseña son nulos o vacíos
+            if (string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
+            {
+                response.MessageResponse = "El email y la contraseña son requeridos";
+                return BadRequest(response);
+            }
 
             var user = await _userManager.FindByNameAsync(model.Email ?? string.Empty);
             if (user == null)
             {
-                return BadRequest("Usuario no encontrado");
+                response.MessageResponse = "Usuario no encontrado";
+                return BadRequest(response);
             }
 
             var result = await _userManager.CheckPasswordAsync(user, model.Password ?? string.Empty);
             if (!result)
             {
-                return BadRequest("Contraseña incorrecta");
+                response.MessageResponse = "Contraseña incorrecta";
+                return BadRequest(response);
             }
 
 
             var tokenExpiration = DateTime.Now.AddDays(60); // 60 días de expiración
-            var token = GenerateJwtToken(user, tokenExpiration); // Generar token JWT
+            var token = GenerateJwtToken(user, tokenExpiration); // Generar token JWT 
 
-            var response = new AuthResponse
-            {
-                Token = token,
-                Email = user.Email ?? string.Empty,
-                UserId = user.Id,
-                TokenExpiration = tokenExpiration
-            };
+            response.Token = token;
+            response.Email = user.Email ?? string.Empty;
+            response.UserId = user.Id;
+            response.TokenExpiration = tokenExpiration;
+
             return Ok(response);
         }
         /// <summary>
-        /// Registra un nuevo usuario en el sistema.
+        /// Realiza el registro de un nuevo usuario y devuelve un token JWT para login automático.
         /// </summary>
-        /// <param name="model">El modelo de registro que contiene el email y la contraseña del usuario.</param>
-        /// <returns>Una respuesta que indica si el registro fue exitoso o un error si no lo fue.</returns>
-        /// <response code="200">El registro fue exitoso y retorna un token JWT.</response>
-        /// <response code="400">El email ya está registrado o hubo errores al crear el usuario.</response>
+        /// <param name="model">El modelo de registro.</param>
+        /// <returns>Un objeto que contiene el token JWT, el email, el ID del usuario y la fecha de expiración del token.</returns>
+        /// <response code="200">El registro fue exitoso.</response>
+        /// <response code="400">El email ya está registrado o hubo un error al registrar el usuario.</response>
         [HttpPost("register")]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
+            var response = new AuthResponse();
+
+            // Verificar si el email y la contraseña son nulos o vacíos
+            if (string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
+            {
+                response.MessageResponse = "El email y la contraseña son requeridos";
+                return BadRequest(response);
+            }
+            
             // Verificar si el usuario ya existe
             var existingUser = await _userManager.FindByEmailAsync(model.Email ?? string.Empty);
             if (existingUser != null)
             {
-                return BadRequest("El email ya está registrado");
+                response.MessageResponse = "El email ya está registrado, por favor inicie sesión";
+                return BadRequest(response);
             }
 
             var user = new ApplicationUser
@@ -102,14 +119,11 @@ namespace SmileTimeNET_API.rest
                 var tokenExpiration = DateTime.Now.AddDays(60);  // 60 días de expiración
                 var token = GenerateJwtToken(user, tokenExpiration);// Generar token JWT para login automático
 
-                var response = new AuthResponse
-                {
-                    Token = token,
-                    Email = user.Email ?? string.Empty,
-                    UserId = user.Id,
-                    TokenExpiration = tokenExpiration
-                };
-                return Ok(response);
+                response.Token = token; // Token JWT
+                response.Email = user.Email ?? string.Empty; // Email del usuario
+                response.UserId = user.Id; // ID del usuario
+                response.TokenExpiration = tokenExpiration; // Fecha de expiración del token
+                return Ok(response); // Retorna el token JWT
             }
 
             return BadRequest(result.Errors);
