@@ -6,6 +6,7 @@ using SmileTimeNET_API.Data;
 using SmileTimeNET_API.Hubs;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using SmileTimeNET_API.src.Infrastructure.Data.Seeds;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -91,6 +92,19 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        await RoleSeeder.SeedRolesAsync(services);
+        Console.WriteLine("Roles inicializados correctamente.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error al inicializar roles: {ex.Message}");
+    }
+}
 
 app.UseRouting(); // Habilita el enrutamiento
 app.UseCors("AllowAngular"); // Habilita CORS
