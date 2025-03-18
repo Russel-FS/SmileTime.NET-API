@@ -15,7 +15,17 @@ namespace SmileTimeNET_API.Models
 
         public override string ToString()
         {
-            return $"ID: {UserId}, Usuario: {Username}, Conexión: {ConnectionId}, Conectado: {ConnectedAt}, En línea: {IsOnline}";
+            return $"""
+           ╔════════════════════════════════
+           ║ Usuario
+           ╠════════════════════════════════
+           ║ 🆔 ID: {UserId}
+           ║ 👤 Usuario: {Username}
+           ║ 🔌 Conexión: {ConnectionId}
+           ║ 🕒 Conectado: {ConnectedAt:dd/MM/yyyy HH:mm:ss}
+           ║ 📡 Estado: {(IsOnline ? "✅ En línea" : "❌ Desconectado")}
+           ╚════════════════════════════════
+           """;
         }
     }
 }
