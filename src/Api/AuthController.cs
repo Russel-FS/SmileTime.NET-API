@@ -75,7 +75,7 @@ namespace SmileTimeNET_API.rest
 
 
             var tokenExpiration = DateTime.Now.AddDays(60); // 60 días de expiración
-            var token = GenerateJwtToken(user, tokenExpiration); // Generar token JWT 
+            var token = await GenerateJwtToken(user, tokenExpiration); // Generar token JWT 
 
             response.Token = token;
             response.Email = user.Email ?? string.Empty;
@@ -123,8 +123,14 @@ namespace SmileTimeNET_API.rest
 
             if (result.Succeeded)
             {
+                // Agrega el rol de usuario por defecto
+                if (await _roleManager.RoleExistsAsync("User"))
+                {
+                    await _userManager.AddToRoleAsync(user, "User");
+                }
+
                 var tokenExpiration = DateTime.Now.AddDays(60);  // 60 días de expiración
-                var token = GenerateJwtToken(user, tokenExpiration);// Generar token JWT para login automático
+                var token = await GenerateJwtToken(user, tokenExpiration);// Generar token JWT para login automático
 
                 response.Token = token; // Token JWT
                 response.Email = user.Email ?? string.Empty; // Email del usuario
@@ -142,8 +148,9 @@ namespace SmileTimeNET_API.rest
         /// <param name="user">El usuario para el cual se genera el token.</param>
         /// <param name="expires">La fecha de expiración del token.</param>
         /// <returns>El token JWT generado para el usuario .</returns> 
-        private string GenerateJwtToken(ApplicationUser user, DateTime? expires)
+        private async Task<string> GenerateJwtToken(ApplicationUser user, DateTime? expires)
         {
+            var userRoles = await _userManager.GetRolesAsync(user);
 
             var claims = new List<Claim>
         {
@@ -151,9 +158,11 @@ namespace SmileTimeNET_API.rest
             new Claim(ClaimTypes.NameIdentifier, user?.Id ?? string.Empty),
             new Claim(ClaimTypes.Email, user?.Email ?? string.Empty),
             new Claim(ClaimTypes.Name, user?.UserName ?? string.Empty),
-            // informacion del rol
-            new Claim(ClaimTypes.Role, "User")
         };
+            foreach (var role in userRoles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
