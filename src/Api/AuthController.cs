@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using SmileTimeNET_API.Models;
 
 
+
 namespace SmileTimeNET_API.rest
 {
     [ApiController]
@@ -20,15 +21,21 @@ namespace SmileTimeNET_API.rest
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="AuthController"/>.
         /// </summary>
         /// <param name="userManager">El administrador de usuarios.</param>
+        /// <param name="roleManager">El administrador de roles.</param>
         /// <param name="configuration"> La configuración de la aplicación.</param>
-        public AuthController(UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public AuthController(
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager,
+             IConfiguration configuration)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
             _configuration = configuration;
         }
 
@@ -96,7 +103,7 @@ namespace SmileTimeNET_API.rest
                 response.MessageResponse = "El email y la contraseña son requeridos";
                 return BadRequest(response);
             }
-            
+
             // Verificar si el usuario ya existe
             var existingUser = await _userManager.FindByEmailAsync(model.Email ?? string.Empty);
             if (existingUser != null)
