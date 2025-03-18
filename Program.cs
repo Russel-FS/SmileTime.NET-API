@@ -7,6 +7,7 @@ using SmileTimeNET_API.Hubs;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using SmileTimeNET_API.src.Infrastructure.Data.Seeds;
+using SmileTimeNET_API.src.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +38,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+
+// Configuracion de servicios de autenticacion
+builder.Services.AddAuthServices();
 
 // Configuracion de opciones de contraseña
 builder.Services.Configure<IdentityOptions>(options =>
