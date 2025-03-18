@@ -44,12 +44,16 @@ namespace SmileTimeNET_API.rest
             try
             {
                 var response = await _authService.LoginAsync(model);
+                if (!response.Success)
+                {
+                    return BadRequest(response);
+                }
                 return Ok(response);
             }
             catch (ArgumentException ex)
             {
                 _logger.LogWarning(ex, "Validación fallida en login");
-                return BadRequest();
+                return BadRequest(new { message = "Error de validación" });
             }
         }
         /// <summary>
@@ -59,7 +63,6 @@ namespace SmileTimeNET_API.rest
         /// <returns>Un objeto que contiene el token JWT, el email, el ID del usuario y la fecha de expiración del token.</returns>
         /// <response code="200">El registro fue exitoso.</response>
         /// <response code="400">El email ya está registrado o hubo un error al registrar el usuario.</response>
-
         [HttpPost("register")]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
@@ -67,12 +70,16 @@ namespace SmileTimeNET_API.rest
             try
             {
                 var response = await _authService.RegisterAsync(model);
+                if (!response.Success)
+                {
+                    return BadRequest(response);
+                }
                 return Ok(response);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error en registro");
-                return BadRequest();
+                return BadRequest(new { Success = false, MessageResponse = "Error interno del servidor" });
             }
         }
 

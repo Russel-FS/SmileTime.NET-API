@@ -40,9 +40,9 @@ namespace SmileTimeNET_API.src.Aplication.services
         {
             var response = new AuthResponse();
 
-            // Verificar si el email y la contraseña son nulos o vacíos
             if (string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
             {
+                response.Success = false;
                 response.MessageResponse = "El email y la contraseña son requeridos";
                 return response;
             }
@@ -50,6 +50,7 @@ namespace SmileTimeNET_API.src.Aplication.services
             var user = await _userManager.FindByNameAsync(model.Email ?? string.Empty);
             if (user == null)
             {
+                response.Success = false;
                 response.MessageResponse = "Usuario no encontrado";
                 return response;
             }
@@ -57,18 +58,20 @@ namespace SmileTimeNET_API.src.Aplication.services
             var result = await _userManager.CheckPasswordAsync(user, model.Password ?? string.Empty);
             if (!result)
             {
-                response.MessageResponse = "Contraseña incorrecta";
+                response.Success = false;
+                response.MessageResponse = "Contraseña incorrecta";
                 return response;
             }
 
+            var tokenExpiration = DateTime.Now.AddDays(60);
+            var token = await GenerateJwtTokenAsync(user, tokenExpiration);
 
-            var tokenExpiration = DateTime.Now.AddDays(60); // 60 días de expiración
-            var token = await GenerateJwtTokenAsync(user, tokenExpiration); // Generar token JWT 
-
+            response.Success = true;
             response.Token = token;
             response.Email = user.Email ?? string.Empty;
             response.UserId = user.Id;
             response.TokenExpiration = tokenExpiration;
+            response.MessageResponse = "Login exitoso";
 
             return response;
         }
@@ -84,17 +87,17 @@ namespace SmileTimeNET_API.src.Aplication.services
         {
             var response = new AuthResponse();
 
-            // Verificar si el email y la contraseña son nulos o vacíos
             if (string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
             {
+                response.Success = false;
                 response.MessageResponse = "El email y la contraseña son requeridos";
                 return response;
             }
 
-            // Verificar si el usuario ya existe
             var existingUser = await _userManager.FindByEmailAsync(model.Email ?? string.Empty);
             if (existingUser != null)
             {
+                response.Success = false;
                 response.MessageResponse = "El email ya está registrado, por favor inicie sesión";
                 return response;
             }
@@ -105,26 +108,29 @@ namespace SmileTimeNET_API.src.Aplication.services
                 Email = model.Email,
             };
 
-            // Agrega el nuevo usuario a la base de datos y  hashea la contraseña automáticamente
             var result = await _userManager.CreateAsync(user, model.Password ?? string.Empty);
 
             if (result.Succeeded)
             {
-                // Agrega el rol de usuario por defecto
                 if (await _roleManager.RoleExistsAsync("User"))
                 {
                     await _userManager.AddToRoleAsync(user, "User");
                 }
 
-                var tokenExpiration = DateTime.Now.AddDays(60);  // 60 días de expiración
-                var token = await GenerateJwtTokenAsync(user, tokenExpiration);// Generar token JWT para login automático
+                var tokenExpiration = DateTime.Now.AddDays(60);
+                var token = await GenerateJwtTokenAsync(user, tokenExpiration);
 
-                response.Token = token; // Token JWT
-                response.Email = user.Email ?? string.Empty; // Email del usuario
-                response.UserId = user.Id; // ID del usuario
-                response.TokenExpiration = tokenExpiration; // Fecha de expiración del token
-                return response; // Retorna el token JWT
+                response.Success = true;
+                response.Token = token;
+                response.Email = user.Email ?? string.Empty;
+                response.UserId = user.Id;
+                response.TokenExpiration = tokenExpiration;
+                response.MessageResponse = "Registro exitoso";
+                return response;
             }
+
+            response.Success = false;
+            response.MessageResponse = "Error al registrar el usuario: " + string.Join(", ", result.Errors.Select(e => e.Description));
             return response;
         }
 
