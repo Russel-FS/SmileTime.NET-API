@@ -8,9 +8,9 @@ namespace SmileTimeNET_API.Models
         public int NewPatients { get; set; }
         public int PendingAppointments { get; set; }
         public int CompletedTreatments { get; set; }
-        public Dictionary<string, int> MonthlyAppointments { get; set; }
-        public TreatmentStats Treatments { get; set; }
-        public Metrics Metrics { get; set; }
+        public required Dictionary<string, int> MonthlyAppointments { get; set; }
+        public required TreatmentStats Treatments { get; set; }
+        public required Metrics Metrics { get; set; }
     }
 
     public class TreatmentStats
