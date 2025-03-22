@@ -15,9 +15,9 @@ namespace SmileTimeNET_API.Models
         public bool IsDeleted { get; set; }
 
         // Navegaciones
-        public Conversation Conversation { get; set; }
-        public ApplicationUser Sender { get; set; }
-        public ICollection<MessageStatus> MessageStatuses { get; set; }
-        public ICollection<Attachment> Attachments { get; set; }
+        public Conversation? Conversation { get; set; }
+        public ApplicationUser? Sender { get; set; }
+        public ICollection<MessageStatus>? MessageStatuses { get; set; }
+        public ICollection<Attachment>? Attachments { get; set; }
     }
 }
