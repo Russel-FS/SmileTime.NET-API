@@ -14,17 +14,17 @@ namespace SmileTimeNET_API.src.Domain.Models
 
         [Required]
         [StringLength(255)]
-        public string ImagenUrl { get; set; }
+        public string? ImagenUrl { get; set; }
 
         [Required]
         [StringLength(100)]
-        public string Titulo { get; set; }
+        public string? Titulo { get; set; }
 
         [StringLength(500)]
-        public string Descripcion { get; set; }
+        public string? Descripcion { get; set; }
 
         [StringLength(255)]
-        public string Alt { get; set; }
+        public string? Alt { get; set; }
 
         [Required]
         public bool Activo { get; set; } = true;

@@ -97,3 +97,5 @@ CREATE TABLE TypingStatus (
     FOREIGN KEY (ConversationId) REFERENCES Conversations(ConversationId),
     PRIMARY KEY (UserId, ConversationId)
 );
+
+
