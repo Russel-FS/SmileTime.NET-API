@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using SmileTimeNET_API.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using SmileTimeNET_API.src.Domain.Models;
+using System.Reflection.Emit;
 
 
 namespace SmileTimeNET_API.Data
@@ -17,9 +19,15 @@ namespace SmileTimeNET_API.Data
         {
         }
 
+        public DbSet<Carousels> Carousels { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            // Puedes añadir configuración adicional para la entidad Carousel aquí
+            builder.Entity<Carousels>()
+                .HasIndex(c => c.Titulo);
         }
     }
 }
