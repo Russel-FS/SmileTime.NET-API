@@ -42,6 +42,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 // Configuracion de servicios de autenticacion
 builder.Services.AddAuthServices();
 
+// Configuracion de servicios de carrusel
+builder.Services.AddCarouselServices();
+
 // Configuracion de opciones de contraseña
 builder.Services.Configure<IdentityOptions>(options =>
 {

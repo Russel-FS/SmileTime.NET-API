@@ -14,5 +14,11 @@ namespace SmileTimeNET_API.src.Infrastructure.DependencyInjection
             services.AddScoped<IAuthService, AuthServiceImpl>();
             return services;
         }
+
+        public static IServiceCollection AddCarouselServices(this IServiceCollection services)
+        {
+            services.AddScoped<CarouselService>();
+            return services;
+        }
     }
 }
