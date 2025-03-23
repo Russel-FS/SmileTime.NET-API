@@ -7,7 +7,7 @@ using SmileTimeNET_API.Models;
 
 namespace SmileTimeNET_API.src.Domain.Interfaces
 {
-    public interface IAuthService
+     public interface IAuthService
     {
         Task<AuthResponse> LoginAsync(LoginModel model);
         Task<AuthResponse> RegisterAsync(RegisterModel model);
