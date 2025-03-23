@@ -89,16 +89,16 @@ namespace SmileTimeNET_API.src.Aplication.services
                     SenderId = m.SenderId,
                     Sender = new UserDTO
                     {
-                        UserId = m.Sender.Id,
-                        UserName = m.Sender.UserName,
-                        Avatar = m.Sender.Avatar
+                        UserId = m.Sender != null ? m.Sender.Id : string.Empty,
+                        UserName = m.Sender.UserName ?? string.Empty,
+                        Avatar = m.Sender.Avatar ?? string.Empty
                     },
                     Attachments = m.Attachments.Select(a => new AttachmentDTO
                     {
                         MessageId = a.MessageId,
                         AttachmentId = a.AttachmentId,
-                        FileUrl = a.FileUrl,
-                        FileType = a.FileType
+                        FileUrl = a.FileUrl ?? string.Empty,
+                        FileType = a.FileType ?? string.Empty
                     }).ToList(),
                     MessageStatuses = m.MessageStatuses.Select(ms => new MessageStatusDTO
                     {
@@ -111,40 +111,42 @@ namespace SmileTimeNET_API.src.Aplication.services
                 .ToListAsync();
         }
 
-
-
         private static MessageDTO MapToMessageDTO(Message message)
         {
-            if (message == null) return null;
+            if (message == null) return new MessageDTO
+            {
+                Attachments = new List<AttachmentDTO>(),
+                MessageStatuses = new List<MessageStatusDTO>()
+            };
 
             return new MessageDTO
             {
                 MessageId = message.MessageId,
                 ConversationId = message.ConversationId,
-                Content = message.Content,
+                Content = message.Content ?? string.Empty,
                 MessageType = message.MessageType,
                 CreatedAt = message.CreatedAt,
                 ModifiedAt = message.ModifiedAt,
                 SenderId = message.SenderId,
                 Sender = new UserDTO
                 {
-                    UserId = message.Sender.Id,
-                    UserName = message.Sender.UserName,
-                    Avatar = message.Sender.Avatar
+                    UserId = message.Sender?.Id ?? string.Empty,
+                    UserName = message.Sender?.UserName ?? string.Empty,
+                    Avatar = message.Sender?.Avatar ?? string.Empty
                 },
                 Attachments = message.Attachments?.Select(a => new AttachmentDTO
                 {
                     MessageId = a.MessageId,
                     AttachmentId = a.AttachmentId,
-                    FileUrl = a.FileUrl,
-                    FileType = a.FileType
-                }).ToList(),
+                    FileUrl = a.FileUrl ?? string.Empty,
+                    FileType = a.FileType ?? string.Empty
+                }).ToList() ?? new List<AttachmentDTO>(),
                 MessageStatuses = message.MessageStatuses?.Select(ms => new MessageStatusDTO
                 {
                     MessageId = ms.MessageId,
                     Status = ms.Status,
                     StatusTimestamp = ms.StatusTimestamp
-                }).ToList()
+                }).ToList() ?? new List<MessageStatusDTO>()
             };
         }
 
@@ -152,7 +154,7 @@ namespace SmileTimeNET_API.src.Aplication.services
 
     public class PaginatedResponse<T>
     {
-        public IEnumerable<T> Items { get; set; }
+        public IEnumerable<T>? Items { get; set; }
         public int CurrentPage { get; set; }
         public int PageSize { get; set; }
         public int TotalItems { get; set; }
