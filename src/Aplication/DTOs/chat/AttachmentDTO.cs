@@ -7,8 +7,10 @@ namespace SmileTimeNET_API.src.Aplication.DTOs.chat
 {
     public class AttachmentDTO
     {
+        public int MessageId { get; set; }
         public int AttachmentId { get; set; }
         public string FileUrl { get; set; }
         public string FileType { get; set; }
+
     }
 }
