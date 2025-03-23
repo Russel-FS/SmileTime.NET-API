@@ -10,7 +10,7 @@ using SmileTimeNET_API.src.Domain.Models;
 
 namespace SmileTimeNET_API.src.Aplication.services
 {
-    public class MessageService 
+    public class MessageService : IMessageService
     {
         private readonly ApplicationDbContext _context;
 
@@ -38,24 +38,17 @@ namespace SmileTimeNET_API.src.Aplication.services
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<ConversationWithLastMessage>> GetUserConversationsWithLastMessageAsync(string userId)
+        public async Task<IEnumerable<Message>> GetMessagesByUserIdAsync(string userId)
         {
-            var conversations = await _context.ConversationParticipants
-                .Where(cp => cp.UserId == userId)
-                .Select(cp => new ConversationWithLastMessage
-                {
-                    Conversation = cp.Conversation,
-                    LastMessage = cp.Conversation.Messages 
-                        .Where(m => !m.IsDeleted)
-                        .OrderByDescending(m => m.CreatedAt)
-                        .FirstOrDefault()
-                })
+            return await _context.Messages
+                .Include(m => m.Sender)
+                .Include(m => m.MessageStatuses)
+                .Include(m => m.Attachments)
+                .Where(m => m.SenderId == userId && !m.IsDeleted)
+                .OrderBy(m => m.CreatedAt)
                 .ToListAsync();
-
-            return conversations;
         }
     }
- 
+
 }
 
- 

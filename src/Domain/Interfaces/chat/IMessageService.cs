@@ -9,5 +9,6 @@ namespace SmileTimeNET_API.src.Domain.Interfaces
     public interface IMessageService
     {
         Task<IEnumerable<Message>> GetMessagesByUserIdAsync(string userId);
+        Task<IEnumerable<Message>> GetMessagesByConversationIdAsync(int conversationId, string userId);
     }
 }
