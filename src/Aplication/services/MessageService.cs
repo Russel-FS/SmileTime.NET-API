@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using SmileTimeNET_API.Data;
 using SmileTimeNET_API.Models;
 using SmileTimeNET_API.src.Domain.Interfaces;
+using SmileTimeNET_API.src.Domain.Models;
 
 namespace SmileTimeNET_API.src.Aplication.services
 {
@@ -54,10 +55,7 @@ namespace SmileTimeNET_API.src.Aplication.services
             return conversations;
         }
     }
-
-    public class ConversationWithLastMessage
-    {
-        public Conversation? Conversation { get; set; }
-        public Message? LastMessage { get; set; }
-    }
+ 
 }
+
+ 
