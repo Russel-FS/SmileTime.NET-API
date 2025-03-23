@@ -9,6 +9,7 @@ using System.Text;
 using SmileTimeNET_API.src.Infrastructure.Data.Seeds;
 using SmileTimeNET_API.src.Infrastructure.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,7 +49,11 @@ builder.Services.AddSwaggerGen(options =>
 }); // Agrega soporte para Swagger
 
 builder.Services.AddSignalR(); // Agrega soporte para SignalR
-builder.Services.AddControllers();  // Agrega soporte para controladores Web API
+builder.Services.AddControllers().AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });   // Agrega soporte para controladores Web API
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", builder =>
