@@ -39,6 +39,28 @@ namespace SmileTimeNET_API.src.Aplication.services.chat
         {
             var conversation = await _context.Conversations
                 .Include(c => c.Participants)
+                .ThenInclude(cp => cp.User)
+                .Select(c => new Conversation
+                {
+                    ConversationId = c.ConversationId,
+                    CreatedAt = c.CreatedAt,
+                    UpdatedAt = c.UpdatedAt,
+                    Type = c.Type,
+                    Title = c.Title,
+                    IsActive = c.IsActive,
+                    Participants = c.Participants.Select(p => new ConversationParticipant
+                    {
+                        UserId = p.UserId,
+                        ConversationId = p.ConversationId,
+                        User = new ApplicationUser
+                        {
+                            UserName = p.User.UserName,
+                            Avatar = p.User.Avatar
+                        },
+                        IsAdmin = p.IsAdmin,
+                        JoinedAt = p.JoinedAt
+                    }).ToList()
+                })
                 .FirstOrDefaultAsync(c => c.ConversationId == conversationId);
 
             if (conversation == null)

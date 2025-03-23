@@ -30,12 +30,38 @@ namespace SmileTimeNET_API.src.Aplication.services
             }
 
             return await _context.Messages
-                .Include(m => m.Sender)
-                .Include(m => m.MessageStatuses)
-                .Include(m => m.Attachments)
-                .Where(m => m.ConversationId == conversationId && !m.IsDeleted)
-                .OrderBy(m => m.CreatedAt)
-                .ToListAsync();
+           .Where(m => m.ConversationId == conversationId && !m.IsDeleted)
+           .Select(m => new Message
+           {
+               MessageId = m.MessageId,
+               ConversationId = m.ConversationId,
+               Content = m.Content,
+               MessageType = m.MessageType,
+               CreatedAt = m.CreatedAt,
+               ModifiedAt = m.ModifiedAt,
+               SenderId = m.SenderId,
+               Sender = new ApplicationUser
+               {
+                   Id = m.Sender.Id,
+                   UserName = m.Sender.UserName,
+                   Avatar = m.Sender.Avatar
+               },
+               Attachments = m.Attachments.Select(a => new Attachment
+               {
+                   MessageId = a.MessageId,
+                   AttachmentId = a.AttachmentId,
+                   FileUrl = a.FileUrl,
+                   FileType = a.FileType
+               }).ToList(),
+               MessageStatuses = m.MessageStatuses.Select(ms => new MessageStatus
+               {
+                   MessageId = ms.MessageId,
+                   Status = ms.Status,
+                   StatusTimestamp = ms.StatusTimestamp
+               }).ToList()
+           })
+         .OrderBy(m => m.CreatedAt)
+         .ToListAsync();
         }
 
         public async Task<IEnumerable<Message>> GetMessagesByUserIdAsync(string userId)
