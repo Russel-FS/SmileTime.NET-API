@@ -8,11 +8,45 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using SmileTimeNET_API.src.Infrastructure.Data.Seeds;
 using SmileTimeNET_API.src.Infrastructure.DependencyInjection;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer(); // Agrega soporte para la exploración de la API
-builder.Services.AddSwaggerGen(); // Agrega soporte para Swagger
+builder.Services.AddSwaggerGen(options =>
+{
+    // Configuracion de Swagger
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "SmileTime API",
+        Version = "v1"
+    });
+    // configuracion de JWT para Swagger
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+
+}); // Agrega soporte para Swagger
+
 builder.Services.AddSignalR(); // Agrega soporte para SignalR
 builder.Services.AddControllers();  // Agrega soporte para controladores Web API
 builder.Services.AddCors(options =>
