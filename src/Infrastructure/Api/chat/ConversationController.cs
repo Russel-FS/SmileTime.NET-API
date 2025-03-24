@@ -107,7 +107,7 @@ namespace SmileTimeNET_API.src.Infrastructure.Api
         /// <response code="200">Usuarios encontrados.</response>
         /// <response code="401">Usuario no autenticado.</response>
         /// <response code="500">Error al obtener los usuarios.</response>
-        [HttpGet("Users")]
+        [HttpGet("contacts")]
         public async Task<IActionResult> GetUserConversationPartners()
         {
             try
