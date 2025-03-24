@@ -14,6 +14,6 @@ namespace SmileTimeNET_API.src.Aplication.DTOs.chat
         public string? Title { get; set; }
         public bool IsActive { get; set; }
         public ICollection<UserDTO> Participants { get; set; } = new List<UserDTO>();
-        public ICollection<MessageDTO> Messages { get; set; } = new List<MessageDTO>();
+        public ICollection<MessageDTO>? Messages { get; set; } = new List<MessageDTO>();
     }
 }

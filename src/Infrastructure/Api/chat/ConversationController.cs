@@ -74,12 +74,10 @@ namespace SmileTimeNET_API.src.Infrastructure.Api
                     return Unauthorized();
 
                 var conversation = await _conversationService.GetConversationByIdAsync(conversationId, userId);
-                var messages = await _messageService.GetMessagesByConversationIdAsync(conversationId, userId);
+                var paginatedResponse = await _messageService.GetMessagesByConversationIdAsync(conversationId, userId);
+                conversation.Messages = paginatedResponse?.Items?.ToList();
 
-                return Ok(new
-                {
-                    conversation
-                });
+                return Ok(conversation);
             }
             catch (KeyNotFoundException ex)
             {
