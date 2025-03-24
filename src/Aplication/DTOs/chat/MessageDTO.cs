@@ -9,13 +9,13 @@ namespace SmileTimeNET_API.src.Aplication.DTOs.chat
     {
         public int MessageId { get; set; }
         public int ConversationId { get; set; }
-        public string? Content { get; set; }
-        public string? MessageType { get; set; }
+        public string? Content { get; set; } = string.Empty;
+        public string? MessageType { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime? ModifiedAt { get; set; }
-        public string? SenderId { get; set; }
-        public UserDTO? Sender { get; set; }
-        public ICollection<AttachmentDTO>? Attachments { get; set; }
-        public ICollection<MessageStatusDTO>? MessageStatuses { get; set; }
+        public string? SenderId { get; set; } = string.Empty;
+        public UserDTO? Sender { get; set; } = null!;
+        public ICollection<AttachmentDTO>? Attachments { get; set; } = new List<AttachmentDTO>();
+        public ICollection<MessageStatusDTO>? MessageStatuses { get; set; } = new List<MessageStatusDTO>();
     }
 }

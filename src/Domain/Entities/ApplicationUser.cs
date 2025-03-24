@@ -6,7 +6,7 @@ namespace SmileTimeNET_API.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        public string Avatar { get; set; } = string.Empty;
+        public string? Avatar { get; set; }
         public DateTime CreatedAt { get; set; }  
         public DateTime? LastActive { get; set; }
         public bool IsActive { get; set; }

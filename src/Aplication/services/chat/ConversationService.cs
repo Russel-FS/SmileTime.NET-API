@@ -35,6 +35,7 @@ namespace SmileTimeNET_API.src.Aplication.services.chat
                 })
                 .ToListAsync();
         }
+
         public async Task<Conversation> GetConversationByIdAsync(int conversationId, string userId)
         {
             var conversation = await _context.Conversations
@@ -48,19 +49,23 @@ namespace SmileTimeNET_API.src.Aplication.services.chat
                     Type = c.Type,
                     Title = c.Title,
                     IsActive = c.IsActive,
-                    Participants = c.Participants.Select(p => new ConversationParticipant
-                    {
-                        UserId = p.UserId,
-                        ConversationId = p.ConversationId,
-                        User = new ApplicationUser
+                    Participants = c.Participants
+                        .Where(p => p.User != null)
+                        .Select(p => new ConversationParticipant
                         {
-                            UserName = p.User.UserName,
-                            Avatar = p.User.Avatar
-                        },
-                        IsAdmin = p.IsAdmin,
-                        JoinedAt = p.JoinedAt
-                    }).ToList()
+                            UserId = p.UserId,
+                            ConversationId = p.ConversationId,
+                            User = new ApplicationUser
+                            {
+                                Id = p.User!.Id,
+                                UserName = p.User.UserName,
+                                Avatar = p.User.Avatar
+                            },
+                            IsAdmin = p.IsAdmin,
+                            JoinedAt = p.JoinedAt
+                        }).ToList()
                 })
+                .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.ConversationId == conversationId);
 
             if (conversation == null)

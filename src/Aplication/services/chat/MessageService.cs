@@ -23,6 +23,7 @@ namespace SmileTimeNET_API.src.Aplication.services
 
         public async Task<PaginatedResponse<MessageDTO>> GetMessagesByConversationIdAsync(int conversationId, string userId, int page = 1)
         {
+
             if (page < 1) page = 1;
 
             if (conversationId <= 0)
@@ -32,6 +33,7 @@ namespace SmileTimeNET_API.src.Aplication.services
 
             try
             {
+
                 var isParticipant = await _context.ConversationParticipants
                     .AnyAsync(cp => cp.ConversationId == conversationId && cp.UserId == userId);
 
@@ -52,13 +54,43 @@ namespace SmileTimeNET_API.src.Aplication.services
                     .Include(m => m.Attachments)
                     .Where(m => m.ConversationId == conversationId && !m.IsDeleted)
                     .OrderByDescending(m => m.CreatedAt)
+                    .ThenBy(m => m.MessageId)
                     .Skip(skip)
                     .Take(DefaultPageSize)
+                    .Select(m => new MessageDTO
+                    {
+                        MessageId = m.MessageId,
+                        ConversationId = m.ConversationId,
+                        Content = m.Content ?? string.Empty,
+                        MessageType = m.MessageType ?? string.Empty,
+                        CreatedAt = m.CreatedAt,
+                        ModifiedAt = m.ModifiedAt,
+                        SenderId = m.SenderId ?? string.Empty,
+                        Sender = m.Sender == null ? new UserDTO() : new UserDTO
+                        {
+                            UserId = m.Sender.Id ?? string.Empty,
+                            UserName = m.Sender.UserName ?? string.Empty,
+                            Avatar = m.Sender.Avatar ?? string.Empty
+                        },
+                        Attachments = m.Attachments.Select(a => new AttachmentDTO
+                        {
+                            MessageId = a.MessageId,
+                            AttachmentId = a.AttachmentId,
+                            FileUrl = a.FileUrl ?? string.Empty,
+                            FileType = a.FileType ?? string.Empty
+                        }).ToList(),
+                        MessageStatuses = m.MessageStatuses.Select(ms => new MessageStatusDTO
+                        {
+                            MessageId = ms.MessageId,
+                            Status = ms.Status ?? string.Empty,
+                            StatusTimestamp = ms.StatusTimestamp
+                        }).ToList()
+                    })
                     .ToListAsync();
 
                 return new PaginatedResponse<MessageDTO>
                 {
-                    Items = messages.Select(MapToMessageDTO),
+                    Items = messages,
                     CurrentPage = page,
                     PageSize = DefaultPageSize,
                     TotalItems = totalMessages,
@@ -109,45 +141,6 @@ namespace SmileTimeNET_API.src.Aplication.services
                 })
                 .OrderBy(m => m.CreatedAt)
                 .ToListAsync();
-        }
-
-        private static MessageDTO MapToMessageDTO(Message message)
-        {
-            if (message == null) return new MessageDTO
-            {
-                Attachments = new List<AttachmentDTO>(),
-                MessageStatuses = new List<MessageStatusDTO>()
-            };
-
-            return new MessageDTO
-            {
-                MessageId = message.MessageId,
-                ConversationId = message.ConversationId,
-                Content = message.Content ?? string.Empty,
-                MessageType = message.MessageType,
-                CreatedAt = message.CreatedAt,
-                ModifiedAt = message.ModifiedAt,
-                SenderId = message.SenderId,
-                Sender = new UserDTO
-                {
-                    UserId = message.Sender?.Id ?? string.Empty,
-                    UserName = message.Sender?.UserName ?? string.Empty,
-                    Avatar = message.Sender?.Avatar ?? string.Empty
-                },
-                Attachments = message.Attachments?.Select(a => new AttachmentDTO
-                {
-                    MessageId = a.MessageId,
-                    AttachmentId = a.AttachmentId,
-                    FileUrl = a.FileUrl ?? string.Empty,
-                    FileType = a.FileType ?? string.Empty
-                }).ToList() ?? new List<AttachmentDTO>(),
-                MessageStatuses = message.MessageStatuses?.Select(ms => new MessageStatusDTO
-                {
-                    MessageId = ms.MessageId,
-                    Status = ms.Status,
-                    StatusTimestamp = ms.StatusTimestamp
-                }).ToList() ?? new List<MessageStatusDTO>()
-            };
         }
 
     }

@@ -9,8 +9,8 @@ namespace SmileTimeNET_API.src.Aplication.DTOs.chat
     {
         public int MessageId { get; set; }
         public int AttachmentId { get; set; }
-        public string FileUrl { get; set; }
-        public string FileType { get; set; }
+        public string? FileUrl { get; set; } = string.Empty;
+        public string? FileType { get; set; } = string.Empty;
 
     }
 }
