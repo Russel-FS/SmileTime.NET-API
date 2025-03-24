@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SmileTimeNET_API.Data;
 using SmileTimeNET_API.Models;
+using SmileTimeNET_API.src.Aplication.DTOs.chat;
 using SmileTimeNET_API.src.Domain.Interfaces;
 using SmileTimeNET_API.src.Domain.Models;
 
@@ -116,5 +117,79 @@ namespace SmileTimeNET_API.src.Aplication.services.chat
             return await _context.ConversationParticipants
                 .AnyAsync(cp => cp.ConversationId == conversationId && cp.UserId == userId);
         }
+
+
+        /// <summary>
+        /// Obtiene los participantes de una conversación en formato UserDTO.
+        /// </summary>
+        /// <param name="conversationId">El ID de la conversación.</param>
+        /// <param name="requestingUserId">El ID del usuario que realiza la solicitud.</param>
+        /// <returns>
+        /// Una colección de <see cref="UserDTO"/> que representa los participantes de la conversación.
+        /// </returns>
+        /// <exception cref="KeyNotFoundException">Excepción lanzada cuando la conversación no se encuentra.</exception>
+        /// <exception cref="UnauthorizedAccessException">
+        /// Excepción lanzada cuando el usuario solicitante no es un participante de la conversación.
+        /// </exception>
+        public async Task<IEnumerable<UserDTO>> GetConversationParticipantsAsync(int conversationId, string requestingUserId)
+        {
+            if (!await IsUserParticipantAsync(conversationId, requestingUserId))
+                throw new UnauthorizedAccessException("Usuario no es participante de esta conversación");
+
+            var participants = await _context.ConversationParticipants
+                .Where(cp => cp.ConversationId == conversationId)
+                .Include(cp => cp.User)
+                .Select(cp => new UserDTO
+                {
+                    UserId = cp.UserId,
+                    UserName = cp.User!.UserName,
+                    Avatar = cp.User.Avatar,
+                    LastActive = cp.User.LastActive,
+                    JoinedAt = cp.JoinedAt,
+                    LeftAt = cp.LeftAt,
+                    Role = cp.IsAdmin ? "admin" : "member",
+                    IsOnline = cp.User.IsActive,
+                    ConversationId = cp.ConversationId.ToString()
+                })
+                .ToListAsync();
+
+            if (!participants.Any())
+                throw new KeyNotFoundException("No se encontraron participantes en esta conversación");
+
+            return participants;
+        }
+
+
+        /// <summary>
+        /// Obtiene todos los usuarios con los que el usuario ha tenido conversaciones.
+        /// </summary>
+        /// <param name="userId">El ID del usuario que realiza la consulta.</param>
+        /// <returns>
+        /// Una colección de <see cref="UserDTO"/> que representa los usuarios con los que se ha conversado.
+        /// </returns>
+        public async Task<IEnumerable<UserDTO>> GetUserConversationPartnersAsync(string userId)
+        {
+            var conversationPartners = await _context.ConversationParticipants
+                .Where(cp => cp.Conversation.Participants.Any(p => p.UserId == userId))
+                .Where(cp => cp.UserId != userId)
+                .Include(cp => cp.User)
+                .Select(cp => new UserDTO
+                {
+                    UserId = cp.UserId,
+                    UserName = cp.User!.UserName,
+                    Avatar = cp.User.Avatar,
+                    LastActive = cp.User.LastActive,
+                    JoinedAt = cp.JoinedAt,
+                    LeftAt = cp.LeftAt,
+                    Role = cp.IsAdmin ? "admin" : "member",
+                    IsOnline = cp.User.IsActive,
+                    ConversationId = cp.ConversationId.ToString()
+                })
+                .Distinct()
+                .ToListAsync();
+
+            return conversationPartners;
+        }
+
     }
 }
