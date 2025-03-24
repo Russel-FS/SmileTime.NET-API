@@ -64,7 +64,7 @@ namespace SmileTimeNET_API.src.Infrastructure.Api
         /// <response code="401">Usuario no autenticado o no es participante de la conversaci n.</response>
         /// <response code="404">Conversaci n no encontrada.</response>
         /// <response code="500">Error al obtener la conversaci n.</response>
-        [HttpGet("{conversationId}")]
+        [HttpGet("ByConversationId/{conversationId}")]
         public async Task<IActionResult> GetConversationById(int conversationId)
         {
             try
