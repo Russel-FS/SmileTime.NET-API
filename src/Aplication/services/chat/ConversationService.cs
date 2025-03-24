@@ -15,11 +15,24 @@ namespace SmileTimeNET_API.src.Aplication.services.chat
     {
         private readonly ApplicationDbContext _context;
 
+        /// <summary>
+        ///  Inicializas una nueva instancia de la clase ConversationService.
+        /// </summary>
+        /// <param name="context">El contexto de la base de datos.</param>
+
         public ConversationService(ApplicationDbContext context)
         {
             _context = context;
         }
 
+        /// <summary>
+        /// Obtiene las conversaciones de un usuario con el  ltimo mensaje de cada una.
+        /// </summary>
+        /// <param name="userId">El ID del usuario.</param>
+        /// <returns>
+        /// Una enumeraci n de <see cref="ConversationWithLastMessage"/> que representa las conversaciones
+        /// del usuario con su  ltimo mensaje.
+        /// </returns>
         public async Task<IEnumerable<ConversationWithLastMessage>> GetUserConversationsWithLastMessageAsync(string userId)
         {
             return await _context.ConversationParticipants
@@ -36,6 +49,19 @@ namespace SmileTimeNET_API.src.Aplication.services.chat
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Obtiene una conversación por su ID. Se asegura de que la conversación exista y
+        /// que el usuario solicitante sea un participante de la conversación.
+        /// </summary>
+        /// <param name="conversationId">El ID de la conversación.</param>
+        /// <param name="userId">El ID del usuario.</param>
+        /// <returns>
+        /// A <see cref="Conversation"/> que representa la conversación.
+        /// </returns>
+        /// <exception cref="KeyNotFoundException">Excepción lanzada cuando la conversación no se encuentra.</exception>
+        /// <exception cref="UnauthorizedAccessException">
+        /// Excepción lanzada cuando el usuario solicitante no es un participante de la conversación.
+        /// </exception>
         public async Task<Conversation> GetConversationByIdAsync(int conversationId, string userId)
         {
             var conversation = await _context.Conversations
@@ -77,6 +103,14 @@ namespace SmileTimeNET_API.src.Aplication.services.chat
             return conversation;
         }
 
+        /// <summary>
+        /// Verifica si el usuario con el ID <paramref name="userId"/> es un participante de la conversación con el ID <paramref name="conversationId"/>.
+        /// </summary>
+        /// <param name="conversationId">El ID de la conversación.</param>
+        /// <param name="userId">El ID del usuario.</param>
+        /// <returns>
+        /// <see langword="true"/> si el usuario es un participante de la conversación, <see langword="false"/> en caso contrario.
+        /// </returns>
         public async Task<bool> IsUserParticipantAsync(int conversationId, string userId)
         {
             return await _context.ConversationParticipants
