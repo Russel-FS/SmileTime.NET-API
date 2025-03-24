@@ -78,8 +78,7 @@ namespace SmileTimeNET_API.src.Infrastructure.Api
 
                 return Ok(new
                 {
-                    conversation,
-                    messages
+                    conversation
                 });
             }
             catch (KeyNotFoundException ex)

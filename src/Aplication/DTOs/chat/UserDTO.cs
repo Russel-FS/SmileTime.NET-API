@@ -15,6 +15,8 @@ namespace SmileTimeNET_API.src.Aplication.DTOs.chat
         public DateTime? LeftAt { get; set; }
         public string? Role { get; set; }
         public bool? IsOnline { get; set; }
-        public string? ConversationId { get; set; }
+        public int? ConversationId { get; set; }
+        public bool? IsAdmin { get; set; }
     }
 }
+

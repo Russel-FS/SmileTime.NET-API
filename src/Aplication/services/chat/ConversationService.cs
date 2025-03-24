@@ -63,12 +63,12 @@ namespace SmileTimeNET_API.src.Aplication.services.chat
         /// <exception cref="UnauthorizedAccessException">
         /// Excepción lanzada cuando el usuario solicitante no es un participante de la conversación.
         /// </exception>
-        public async Task<Conversation> GetConversationByIdAsync(int conversationId, string userId)
+        public async Task<ConversationDto> GetConversationByIdAsync(int conversationId, string userId)
         {
             var conversation = await _context.Conversations
                 .Include(c => c.Participants)
                 .ThenInclude(cp => cp.User)
-                .Select(c => new Conversation
+                .Select(c => new ConversationDto
                 {
                     ConversationId = c.ConversationId,
                     CreatedAt = c.CreatedAt,
@@ -78,16 +78,12 @@ namespace SmileTimeNET_API.src.Aplication.services.chat
                     IsActive = c.IsActive,
                     Participants = c.Participants
                         .Where(p => p.User != null)
-                        .Select(p => new ConversationParticipant
+                        .Select(p => new UserDTO
                         {
                             UserId = p.UserId,
                             ConversationId = p.ConversationId,
-                            User = new ApplicationUser
-                            {
-                                Id = p.User!.Id,
-                                UserName = p.User.UserName,
-                                Avatar = p.User.Avatar
-                            },
+                            UserName = p.User!.UserName,
+                            Avatar = p.User.Avatar,
                             IsAdmin = p.IsAdmin,
                             JoinedAt = p.JoinedAt
                         }).ToList()
@@ -149,7 +145,7 @@ namespace SmileTimeNET_API.src.Aplication.services.chat
                     LeftAt = cp.LeftAt,
                     Role = cp.IsAdmin ? "admin" : "member",
                     IsOnline = cp.User.IsActive,
-                    ConversationId = cp.ConversationId.ToString()
+                    ConversationId = cp.ConversationId
                 })
                 .ToListAsync();
 
@@ -183,7 +179,7 @@ namespace SmileTimeNET_API.src.Aplication.services.chat
                     LeftAt = cp.LeftAt,
                     Role = cp.IsAdmin ? "admin" : "member",
                     IsOnline = cp.User.IsActive,
-                    ConversationId = cp.ConversationId.ToString()
+                    ConversationId = cp.ConversationId
                 })
                 .Distinct()
                 .ToListAsync();

@@ -11,7 +11,7 @@ namespace SmileTimeNET_API.src.Domain.Interfaces
     public interface IConversationService
     {
         Task<IEnumerable<ConversationWithLastMessage>> GetUserConversationsWithLastMessageAsync(string userId);
-        Task<Conversation> GetConversationByIdAsync(int conversationId, string userId);
+        Task<ConversationDto> GetConversationByIdAsync(int conversationId, string userId);
         Task<bool> IsUserParticipantAsync(int conversationId, string userId);
         Task<IEnumerable<UserDTO>> GetUserConversationPartnersAsync(string userId);
     }
