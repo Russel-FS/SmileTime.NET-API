@@ -148,7 +148,7 @@ namespace SmileTimeNET_API.src.Aplication.services
                     Sender = new UserDTO
                     {
                         UserId = m.Sender != null ? m.Sender.Id : string.Empty,
-                        UserName = m.Sender.UserName ?? string.Empty,
+                        UserName = m.Sender.UserName ?? string.Empty, 
                         Avatar = m.Sender.Avatar ?? string.Empty
                     },
                     Attachments = m.Attachments.Select(a => new AttachmentDTO
