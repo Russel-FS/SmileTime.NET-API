@@ -104,7 +104,7 @@ namespace SmileTimeNET_API.src.Aplication.services
 
             var user = new ApplicationUser
             {
-                UserName = model.Email,
+                UserName = model.FullName,
                 Email = model.Email,
             };
 
