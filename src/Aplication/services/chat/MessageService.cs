@@ -16,11 +16,28 @@ namespace SmileTimeNET_API.src.Aplication.services
         private readonly ApplicationDbContext _context;
         private const int DefaultPageSize = 50;
 
+        /// <summary>
+        /// Constructor del servicio de mensajes.
+        /// </summary>
+        /// <param name="context">El contexto de la base de datos.</param>
         public MessageService(ApplicationDbContext context)
         {
             _context = context;
         }
 
+        /// <summary>
+        /// Obtiene los mensajes de una conversación por su ID, paginados.
+        /// </summary>
+        /// <param name="conversationId">El ID de la conversación.</param>
+        /// <param name="userId">El ID del usuario.</param>
+        /// <param name="page">El n mero de p gina a obtener. Si no se especifica, se devuelve la primera p gina.</param>
+        /// <returns>
+        /// Un objeto <see cref="PaginatedResponse{MessageDTO}"/> que contiene los mensajes de la conversaci n,
+        /// la p gina actual, el tama o de p gina (por defecto 50), el total de elementos y el total de p ginas.
+        /// </returns>
+        /// <exception cref="ArgumentException">Excepci n lanzada si el ID de conversaci n es inv lido.</exception>
+        /// <exception cref="UnauthorizedAccessException">Excepci n lanzada si el usuario no es participante de la conversaci n.</exception>
+        /// <exception cref="ApplicationException">Excepci n lanzada si ocurre un error al obtener los mensajes.</exception>
         public async Task<PaginatedResponse<MessageDTO>> GetMessagesByConversationIdAsync(int conversationId, string userId, int page = 1)
         {
 
@@ -103,6 +120,15 @@ namespace SmileTimeNET_API.src.Aplication.services
             }
         }
 
+        /// <summary>
+        /// Obtiene los mensajes enviados por un usuario por su ID.
+        /// </summary>
+        /// <param name="userId">El ID del usuario.</param>
+        /// <returns>
+        /// Una enumeraci n de <see cref="MessageDTO"/> que representa los mensajes enviados por el usuario.
+        /// </returns>
+        /// <exception cref="ArgumentException">Excepci n lanzada si el ID de usuario es inv lido.</exception>
+        /// <exception cref="ApplicationException">Excepci n lanzada si ocurre un error al obtener los mensajes.</exception>
         public async Task<IEnumerable<MessageDTO>> GetMessagesByUserIdAsync(string userId)
         {
             return await _context.Messages
