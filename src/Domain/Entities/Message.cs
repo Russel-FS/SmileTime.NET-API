@@ -14,10 +14,10 @@ namespace SmileTimeNET_API.Models
         public DateTime? ModifiedAt { get; set; }
         public bool IsDeleted { get; set; }
 
-        // Navegaciones
-        public Conversation Conversation { get; set; } = null!;
-        public ApplicationUser Sender { get; set; } = null!;
-        public ICollection<MessageStatus> MessageStatuses { get; set; } = new List<MessageStatus>();
-        public ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
+        // Navegaciones 
+        public virtual Conversation? Conversation { get; set; }
+        public virtual ApplicationUser? Sender { get; set; }
+        public virtual ICollection<MessageStatus> MessageStatuses { get; set; } = new List<MessageStatus>();
+        public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
     }
 }
