@@ -10,5 +10,7 @@ namespace SmileTimeNET_API.src.Aplication.DTOs.chat
         public int MessageId { get; set; }
         public string? Status { get; set; } = string.Empty;
         public DateTime StatusTimestamp { get; set; }
+        public string? UserId { get; set; } = string.Empty;
     }
 }
+

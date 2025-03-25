@@ -169,6 +169,15 @@ namespace SmileTimeNET_API.src.Aplication.services
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Crea un nuevo mensaje.
+        /// </summary>
+        /// <param name="message">El mensaje a crear.</param>
+        /// <returns>
+        /// El mensaje creado.
+        /// </returns>
+        /// <exception cref="ArgumentException">Excepci n lanzada si el mensaje es nulo o inv lido.</exception>
+        /// <exception cref="ApplicationException">Excepci n lanzada si ocurre un error al crear el mensaje.</exception>
     }
 
     public class PaginatedResponse<T>
