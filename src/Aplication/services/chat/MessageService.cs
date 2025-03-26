@@ -74,7 +74,7 @@ namespace SmileTimeNET_API.src.Aplication.services
                     .Include(m => m.MessageStatuses)
                     .Include(m => m.Attachments)
                     .Where(m => m.ConversationId == conversationId && !m.IsDeleted)
-                    .OrderByDescending(m => m.CreatedAt)
+                    .OrderBy(m => m.CreatedAt)
                     .ThenBy(m => m.MessageId)
                     .Skip(skip)
                     .Take(DefaultPageSize)
