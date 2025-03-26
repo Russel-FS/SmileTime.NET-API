@@ -8,21 +8,25 @@ using SmileTimeNET_API.Models;
 using SmileTimeNET_API.src.Aplication.DTOs.chat;
 using SmileTimeNET_API.src.Domain.Interfaces;
 using SmileTimeNET_API.src.Domain.Models;
+using AutoMapper;
 
 namespace SmileTimeNET_API.src.Aplication.services
 {
     public class MessageService : IMessageService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
         private const int DefaultPageSize = 50;
 
         /// <summary>
         /// Constructor del servicio de mensajes.
         /// </summary>
         /// <param name="context">El contexto de la base de datos.</param>
-        public MessageService(ApplicationDbContext context)
+        /// <param name="mapper">El mapeador de objetos.</param>
+        public MessageService(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -178,11 +182,13 @@ namespace SmileTimeNET_API.src.Aplication.services
         /// </returns>
         /// <exception cref="ArgumentException">Excepci n lanzada si el mensaje es nulo o inv lido.</exception>
         /// <exception cref="ApplicationException">Excepci n lanzada si ocurre un error al crear el mensaje.</exception>
-        public async Task<MessageDTO> CreateMessageAsync(Message message)
+        public async Task<MessageDTO> CreateMessageAsync(MessageDTO dto)
         {
+            Message message = _mapper.Map<Message>(dto);
+
             if (message == null)
                 throw new ArgumentException("Mensaje requerido");
-            
+
             if (message.MessageId != 0)
                 throw new ArgumentException("Para crear un nuevo mensaje, el MessageId debe ser 0");
 
@@ -193,37 +199,9 @@ namespace SmileTimeNET_API.src.Aplication.services
             {
                 _context.Messages.Add(message);
                 await _context.SaveChangesAsync();
-                
-                return new MessageDTO
-                {
-                    MessageId = message.MessageId,
-                    ConversationId = message.ConversationId,
-                    Content = message.Content ?? string.Empty,
-                    MessageType = message.MessageType ?? string.Empty,
-                    CreatedAt = message.CreatedAt,
-                    ModifiedAt = message.ModifiedAt,
-                    SenderId = message.SenderId ?? string.Empty,
-                    Sender = message.Sender == null ? new UserDTO() : new UserDTO
-                    {
-                        UserId = message.Sender.Id ?? string.Empty,
-                        UserName = message.Sender.UserName ?? string.Empty,
-                        Avatar = message.Sender.Avatar ?? string.Empty
-                    },
-                    Attachments = message.Attachments.Select(a => new AttachmentDTO
-                    {
-                        MessageId = a.MessageId,
-                        AttachmentId = a.AttachmentId,
-                        FileUrl = a.FileUrl ?? string.Empty,
-                        FileType = a.FileType ?? string.Empty
-                    }).ToList(),
-                    MessageStatuses = message.MessageStatuses.Select(ms => new MessageStatusDTO
-                    {
-                        MessageId = ms.MessageId,
-                        Status = ms.Status ?? string.Empty,
-                        StatusTimestamp = ms.StatusTimestamp
-                    }).ToList()
-                };
 
+                //Console.WriteLine("Mensaje creado con éxito" + message);
+                return _mapper.Map<MessageDTO>(message);
             }
             catch (Exception ex)
             {

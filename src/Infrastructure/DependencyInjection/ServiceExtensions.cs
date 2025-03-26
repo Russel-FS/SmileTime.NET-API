@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using SmileTimeNET_API.src.Aplication.services;
 using SmileTimeNET_API.src.Aplication.services.chat;
@@ -28,5 +29,6 @@ namespace SmileTimeNET_API.src.Infrastructure.DependencyInjection
             services.AddScoped<IMessageService, MessageService>();
             return services;
         }
+ 
     }
 }

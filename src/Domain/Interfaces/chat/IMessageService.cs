@@ -13,6 +13,6 @@ namespace SmileTimeNET_API.src.Domain.Interfaces
         Task<IEnumerable<MessageDTO>> GetMessagesByUserIdAsync(string userId);
         Task<PaginatedResponse<MessageDTO>> GetMessagesByConversationIdAsync(int conversationId, string userId, int page = 1);
 
-        Task<MessageDTO> CreateMessageAsync(Message message);
+        Task<MessageDTO> CreateMessageAsync(MessageDTO message);
     }
 }

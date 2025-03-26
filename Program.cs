@@ -6,10 +6,11 @@ using SmileTimeNET_API.Data;
 using SmileTimeNET_API.Hubs;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using SmileTimeNET_API.src.Infrastructure.Data.Seeds;
-using SmileTimeNET_API.src.Infrastructure.DependencyInjection;
+using SmileTimeNET_API.src.Infrastructure.Data.Seeds; 
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
+using SmileTimeNET_API.src.Aplication.Mappings;
+using SmileTimeNET_API.src.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -84,7 +85,8 @@ builder.Services.AddAuthServices();
 builder.Services.AddCarouselServices();
 // Configuracion de servicios de chat
 builder.Services.AddChatServices();
-
+// Configuracion mapper 
+builder.Services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
 
 // Configuracion de opciones de contraseña
 builder.Services.Configure<IdentityOptions>(options =>

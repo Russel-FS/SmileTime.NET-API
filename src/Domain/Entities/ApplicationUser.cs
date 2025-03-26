@@ -12,8 +12,8 @@ namespace SmileTimeNET_API.Models
         public bool IsActive { get; set; }
 
         // Navegaciones
-        public ICollection<ConversationParticipant> ConversationParticipants { get; set; } = new List<ConversationParticipant>();
-        public ICollection<Message> Messages { get; set; } = new List<Message>();
-        public ICollection<MessageStatus> MessageStatuses { get; set; } = new List<MessageStatus>();
+        public ICollection<ConversationParticipant>? ConversationParticipants { get; set; } = new List<ConversationParticipant>();
+        public ICollection<Message>? Messages { get; set; } = new List<Message>();
+        public ICollection<MessageStatus>? MessageStatuses { get; set; } = new List<MessageStatus>();
     }
 }

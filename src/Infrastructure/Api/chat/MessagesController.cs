@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmileTimeNET_API.Data;
 using SmileTimeNET_API.Models;
+using SmileTimeNET_API.src.Aplication.DTOs.chat;
 using SmileTimeNET_API.src.Domain.Interfaces;
 
 namespace SmileTimeNET_API.src.Infrastructure.Api.chat
@@ -31,9 +32,10 @@ namespace SmileTimeNET_API.src.Infrastructure.Api.chat
         /// </returns>
         /// <exception cref="ArgumentException">Excepci n lanzada si el mensaje es nulo o inv lido.</exception>
         /// <exception cref="ApplicationException">Excepci n lanzada si ocurre un error al crear el mensaje.</exception>
-        [HttpPost("{conversationId:int}")]
-        public async Task<IActionResult> CreateMessage([FromBody] Message message)
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateMessage([FromBody] MessageDTO message)
         {
+
             if (message == null)
                 return BadRequest("Mensaje requerido");
 
