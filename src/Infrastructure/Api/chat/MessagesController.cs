@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,6 +36,7 @@ namespace SmileTimeNET_API.src.Infrastructure.Api.chat
         [HttpPost("create")]
         public async Task<IActionResult> CreateMessage([FromBody] MessageDTO message)
         {
+            Console.WriteLine("CreateMessage................." + JsonSerializer.Serialize(message));
 
             if (message == null)
                 return BadRequest("Mensaje requerido");

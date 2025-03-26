@@ -184,19 +184,26 @@ namespace SmileTimeNET_API.src.Aplication.services
         /// <exception cref="ApplicationException">Excepci n lanzada si ocurre un error al crear el mensaje.</exception>
         public async Task<MessageDTO> CreateMessageAsync(MessageDTO dto)
         {
-            Message message = _mapper.Map<Message>(dto);
 
-            if (message == null)
+            if (dto == null)
                 throw new ArgumentException("Mensaje requerido");
 
-            if (message.MessageId != 0)
+            if (dto.MessageId != 0)
                 throw new ArgumentException("Para crear un nuevo mensaje, el MessageId debe ser 0");
 
-            if (message.ConversationId <= 0)
+            if (dto.ConversationId <= 0)
                 throw new ArgumentException("ID de conversación inválido");
 
             try
             {
+                var sender = await _context.Users.FindAsync(dto.Sender?.UserId);
+                if (sender == null)
+                    throw new ArgumentException("Usuario remitente no encontrado");
+
+                var message = _mapper.Map<Message>(dto);
+                message.SenderId = sender.Id;
+                message.Sender = sender;
+
                 _context.Messages.Add(message);
                 await _context.SaveChangesAsync();
 
