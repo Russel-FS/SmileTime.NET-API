@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SmileTimeNET_API.Data;
 using SmileTimeNET_API.Models;
@@ -15,15 +16,16 @@ namespace SmileTimeNET_API.src.Aplication.services.chat
     public class ConversationService : IConversationService
     {
         private readonly ApplicationDbContext _context;
-
+        private readonly IMapper _mapper;
         /// <summary>
         ///  Inicializas una nueva instancia de la clase ConversationService.
         /// </summary>
         /// <param name="context">El contexto de la base de datos.</param>
 
-        public ConversationService(ApplicationDbContext context)
+        public ConversationService(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -185,6 +187,60 @@ namespace SmileTimeNET_API.src.Aplication.services.chat
                 .ToListAsync();
 
             return conversationPartners;
+        }
+
+
+
+     
+        /// <summary>
+        /// Crea una nueva conversaci n.
+        /// </summary>
+        /// <param name="conversation">La conversaci n a crear.</param>
+        /// <returns>
+        /// La conversaci n creada.
+        /// </returns>
+        /// <exception cref="ArgumentException">Excepci n lanzada si la conversaci n no tiene al menos un participante.</exception>
+        /// <exception cref="KeyNotFoundException">Excepci n lanzada si uno o m s usuarios no existen.</exception>
+        /// <exception cref="DbUpdateException">Excepci n lanzada si ocurre un error al guardar la conversaci n.</exception>
+        public async Task<ConversationDto> CreateConversationAsync(ConversationDto conversation)
+        {
+            try
+            {
+                // Validar que al menos haya un participante
+                if (!conversation.Participants.Any())
+                {
+                    throw new ArgumentException("La conversación debe tener al menos un participante");
+                }
+
+                // Verificar que los usuarios existan
+                var userIds = conversation.Participants.Select(p => p.UserId).ToList();
+                var existingUsers = await _context.Users
+                    .Where(u => userIds.Contains(u.Id))
+                    .ToListAsync();
+
+                if (existingUsers.Count != userIds.Count)
+                {
+                    throw new KeyNotFoundException("Uno o más usuarios no existen");
+                }
+
+                // Establecer fechas si no están definidas
+                conversation.CreatedAt ??= DateTime.UtcNow;
+                conversation.UpdatedAt ??= DateTime.UtcNow;
+
+                var conversationEntity = _mapper.Map<Conversation>(conversation);
+
+                // 
+                conversationEntity.Messages = new List<Message>();
+
+                await _context.Conversations.AddAsync(conversationEntity);
+                await _context.SaveChangesAsync();
+
+                return _mapper.Map<ConversationDto>(conversationEntity);
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new DbUpdateException("Error al guardar la conversación", ex);
+            }
         }
 
     }

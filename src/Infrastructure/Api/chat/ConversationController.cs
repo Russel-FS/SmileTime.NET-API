@@ -5,6 +5,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SmileTimeNET_API.Models;
+using SmileTimeNET_API.src.Aplication.DTOs.chat;
 using SmileTimeNET_API.src.Domain.Interfaces;
 
 namespace SmileTimeNET_API.src.Infrastructure.Api
@@ -119,6 +121,34 @@ namespace SmileTimeNET_API.src.Infrastructure.Api
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Error al obtener los usuarios", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Crea una nueva conversaci n.    
+        ///   </summary> 
+        /// <param name="conversation">La conversaci n a crear.</param>
+        /// <returns>
+        /// La conversaci n creada.
+        /// </returns>
+        /// <response code="200">Conversaci n creada.</response>
+        /// <response code="401">Usuario no autenticado.</response>
+        /// <response code="500">Error al crear la conversaci n.</response>
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateConversation([FromBody] ConversationDto conversation)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized();
+
+                var createdConversation = await _conversationService.CreateConversationAsync(conversation);
+                return Ok(createdConversation);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al crear la conversación", error = ex.Message });
             }
         }
     }

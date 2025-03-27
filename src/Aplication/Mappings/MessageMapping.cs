@@ -36,7 +36,7 @@ namespace SmileTimeNET_API.src.Aplication.Mappings
                 .ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.MessageType ?? "text"))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(dest => dest.ModifiedAt, opt => opt.MapFrom(src => src.ModifiedAt))
-                .ForMember(dest => dest.Sender, opt => opt.MapFrom(src => src.Sender)) 
+                .ForMember(dest => dest.Sender, opt => opt.MapFrom(src => src.Sender))
                 .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false));
 
             CreateMap<Attachment, AttachmentDTO>();
@@ -44,6 +44,31 @@ namespace SmileTimeNET_API.src.Aplication.Mappings
 
             CreateMap<MessageStatus, MessageStatusDTO>();
             CreateMap<MessageStatusDTO, MessageStatus>();
+
+            // Mapeo de Conversation
+            CreateMap<Conversation, ConversationDto>()
+              .ForMember(dest => dest.Participants, opt => opt.MapFrom(src => src.Participants));
+
+            CreateMap<ConversationDto, Conversation>()
+                .ForMember(dest => dest.Participants, opt => opt.MapFrom(src => src.Participants.Select(p => new ConversationParticipant
+                {
+                    UserId = p.UserId,
+                    ConversationId = p.ConversationId ?? 0,
+                    IsAdmin = p.IsAdmin ?? false,
+                    JoinedAt = p.JoinedAt ?? DateTime.UtcNow,
+                    LeftAt = p.LeftAt,
+                    LastRead = DateTime.UtcNow
+                })));
+
+            CreateMap<ConversationParticipant, UserDTO>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User!.UserName))
+                .ForMember(dest => dest.Avatar, opt => opt.MapFrom(src => src.User!.Avatar))
+                .ForMember(dest => dest.IsAdmin, opt => opt.MapFrom(src => src.IsAdmin))
+                .ForMember(dest => dest.JoinedAt, opt => opt.MapFrom(src => src.JoinedAt))
+                .ForMember(dest => dest.LeftAt, opt => opt.MapFrom(src => src.LeftAt))
+                .ForMember(dest => dest.ConversationId, opt => opt.MapFrom(src => src.ConversationId));
+
         }
     }
 }

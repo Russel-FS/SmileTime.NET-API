@@ -14,5 +14,6 @@ namespace SmileTimeNET_API.src.Domain.Interfaces
         Task<ConversationDto> GetConversationByIdAsync(int conversationId, string userId);
         Task<bool> IsUserParticipantAsync(int conversationId, string userId);
         Task<IEnumerable<UserDTO>> GetUserConversationPartnersAsync(string userId);
+        Task<ConversationDto> CreateConversationAsync(ConversationDto conversation);
     }
 }
