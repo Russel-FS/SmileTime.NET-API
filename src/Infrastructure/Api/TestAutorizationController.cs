@@ -5,17 +5,17 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace SmileTimeNET_API.Controllers
+namespace SmileTimeNET_API.src.Infrastructure.Api
 {
     [ApiController]
-    [Route("api/[controller]")] 
     [Authorize]
-    public class TestApiController : ControllerBase
+    [Route("api/[controller]")]
+    public class TestAutorizationController : ControllerBase
     {
-        [HttpGet("test")]
-        public IActionResult Test()
+        [HttpGet]
+        public IActionResult Get()
         {
-            return Ok("Prueba exitosa");
+            return Ok("Autorizado");
         }
     }
 }

@@ -6,18 +6,64 @@ using SmileTimeNET_API.Data;
 using SmileTimeNET_API.Hubs;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using SmileTimeNET_API.src.Infrastructure.Data.Seeds; 
+using Microsoft.OpenApi.Models;
+using System.Text.Json.Serialization;
+using SmileTimeNET_API.src.Aplication.Mappings;
+using SmileTimeNET_API.src.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer(); // Agrega soporte para la exploración de la API
-builder.Services.AddSwaggerGen(); // Agrega soporte para Swagger
+builder.Services.AddSwaggerGen(options =>
+{
+    // Configuracion de Swagger
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "SmileTime API",
+        Version = "v1"
+    });
+    // configuracion de JWT para Swagger
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+
+}); // Agrega soporte para Swagger
+
 builder.Services.AddSignalR(); // Agrega soporte para SignalR
-builder.Services.AddControllers();  // Agrega soporte para controladores Web API
+builder.Services.AddControllers().AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });   // Agrega soporte para controladores Web API
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", builder =>
     {
+<<<<<<< HEAD
         builder.WithOrigins("http://localhost:4200") // Origen permitido
+=======
+        builder.WithOrigins("https://psychic-space-garbanzo-v6wprw59vv6xfx55r-4200.app.github.dev") // Origen permitido
+>>>>>>> 06d3c04a0fc25fe8049fffbb099b137c8bdfe2c6
                .AllowAnyHeader()                   // Permitir cualquier header
                .AllowAnyMethod()                   // Permitir cualquier método HTTP
                .AllowCredentials();                // Permitir envío de cookies-autenticación
@@ -37,12 +83,21 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+// Configuracion de servicios de autenticacion
+builder.Services.AddAuthServices();
+// Configuracion de servicios de carrusel
+builder.Services.AddCarouselServices();
+// Configuracion de servicios de chat
+builder.Services.AddChatServices();
+// Configuracion mapper 
+builder.Services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
+
 // Configuracion de opciones de contraseña
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Password.RequireDigit = false;  // No requiere números en la contraseña
     options.Password.RequireNonAlphanumeric = false; // No requiere caracteres especiales
-    options.Password.RequiredLength = 6; // Longitud mínima de la contraseña
+    options.Password.RequiredLength = 6; // Longitud mínima de la contraseña: (comentario) no modificar esto para los que revisen el código
 });
 
 
@@ -91,6 +146,19 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        await RoleSeeder.SeedRolesAsync(services);
+        Console.WriteLine("Roles inicializados correctamente.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error al inicializar roles: {ex.Message}");
+    }
+}
 
 app.UseRouting(); // Habilita el enrutamiento
 app.UseCors("AllowAngular"); // Habilita CORS
@@ -108,31 +176,5 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
