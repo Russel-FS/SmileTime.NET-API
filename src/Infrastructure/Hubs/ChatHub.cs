@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using SmileTimeNET_API.Models;
+using SmileTimeNET_API.src.Domain.Models.signalR;
 
 namespace SmileTimeNET_API.Hubs
 {
@@ -127,9 +128,9 @@ namespace SmileTimeNET_API.Hubs
         /// <param name="userId">El ID del usuario que esta escribiendo.</param>
         /// <param name="isTyping">Indica si el usuario esta escribiendo o no.</param>
         /// <returns>Una tarea que se completa cuando se ha notificado a todos los clientes.</returns>
-        public async Task UserTyping(Object userId, bool isTyping)
+        public async Task UserTyping(TypingStatus isTyping)
         {
-            await Clients.All.SendAsync("UserTypingStatus", userId, isTyping);
+            await Clients.All.SendAsync("UserTypingStatus", isTyping);
         }
 
 
