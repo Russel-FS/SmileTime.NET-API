@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using SmileTimeNET_API.Models;
 using SmileTimeNET_API.src.Aplication.DTOs.chat;
+using SmileTimeNET_API.src.Aplication.DTOs.signalR;
 using SmileTimeNET_API.src.Domain.Models.signalR;
 
 namespace SmileTimeNET_API.Hubs
@@ -100,9 +101,9 @@ namespace SmileTimeNET_API.Hubs
         /// <param name="recipientUserId">El ID del usuario al que se va a enviar el mensaje privado.</param>
         /// <param name="message">El mensaje que se va a enviar.</param>
         /// <returns>Una tarea que representa la operacion asincrona de envio de mensaje.</returns>
-        public async Task SendPrivateMessage(MessageDTO message)
+        public async Task SendPrivateMessage(PrivateMessageDTO message)
         {
-            var recipientUserId = "0";
+            var recipientUserId = message.RecipientId;
             var senderId = Context?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(senderId))
                 return;
@@ -118,8 +119,8 @@ namespace SmileTimeNET_API.Hubs
                     Timestamp = DateTime.UtcNow
                 };
 
-                await Clients.Client(recipient.ConnectionId ?? string.Empty).SendAsync("ReceivePrivateMessage", messageData);
-
+                await Clients.Client(recipient.ConnectionId ?? string.Empty)
+                       .SendAsync("ReceivePrivateMessage", messageData);
                 await Clients.Caller.SendAsync("ReceivePrivateMessage", messageData);
             }
         }
