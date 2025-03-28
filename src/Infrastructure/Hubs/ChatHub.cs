@@ -49,7 +49,7 @@ namespace SmileTimeNET_API.Hubs
                     return oldValue;
                 });
                 Console.WriteLine($"Usuario Conectado: {connectedUser.ToString()}");
-                await Clients.Others.SendAsync("UserConnected", new
+                await Clients.Others.SendAsync("UserConnected", new OnlineUserDTO
                 {
                     UserId = userId,
                     Username = connectedUser.Username,
@@ -78,7 +78,12 @@ namespace SmileTimeNET_API.Hubs
                 //  log
                 Console.WriteLine($"Usuario Desconectado: {user_.ToString()}");
                 // notificar a los demas usuarios que se desconecto
-                await Clients.Others.SendAsync("UserDisconnected", userId);
+                await Clients.Others.SendAsync("UserDisconnected", new OnlineUserDTO
+                {
+                    UserId = userId,
+                    Username = user_.Username,
+                    IsOnline = false
+                });
                 // remover usuario de la lista de conectados
                 ConnectedUsers.TryRemove(userId, out _);
             }
