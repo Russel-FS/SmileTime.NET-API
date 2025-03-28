@@ -6,9 +6,8 @@ using SmileTimeNET_API.src.Aplication.DTOs.chat;
 
 namespace SmileTimeNET_API.src.Aplication.DTOs.signalR
 {
-    public class PrivateMessageDTO
+    public class PrivateMessageDTO : MessageDTO
     {
-        public MessageDTO Message { get; set; } = null!;
         public string RecipientId { get; set; } = string.Empty;
     }
 }
