@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using SmileTimeNET_API.Models;
@@ -103,6 +104,7 @@ namespace SmileTimeNET_API.Hubs
         /// <returns>Una tarea que representa la operacion asincrona de envio de mensaje.</returns>
         public async Task SendPrivateMessage(PrivateMessageDTO message)
         {
+            Console.WriteLine($"Mensaje Recibido: {JsonSerializer.Serialize(message)}");
             var recipientUserId = message.RecipientId;
             var senderId = Context?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(senderId))
@@ -110,18 +112,9 @@ namespace SmileTimeNET_API.Hubs
 
             if (ConnectedUsers.TryGetValue(recipientUserId, out var recipient))
             {
-                var senderUser = ConnectedUsers.GetValueOrDefault(senderId);
-                var messageData = new
-                {
-                    SenderId = senderId,
-                    SenderName = senderUser?.Username,
-                    Message = message,
-                    Timestamp = DateTime.UtcNow
-                };
-
                 await Clients.Client(recipient.ConnectionId ?? string.Empty)
-                       .SendAsync("ReceivePrivateMessage", messageData);
-                await Clients.Caller.SendAsync("ReceivePrivateMessage", messageData);
+                       .SendAsync("ReceivePrivateMessage", message);
+                await Clients.Caller.SendAsync("ReceivePrivateMessage", message);
             }
         }
 
