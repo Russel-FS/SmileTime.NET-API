@@ -59,7 +59,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", builder =>
     {
-        builder.WithOrigins("https://psychic-space-garbanzo-v6wprw59vv6xfx55r-4200.app.github.dev") // Origen permitido
+        builder.WithOrigins("https://bookish-goggles-g467v66w49xvfv6qw-4200.app.github.dev") // Origen permitido
                .AllowAnyHeader()                   // Permitir cualquier header
                .AllowAnyMethod()                   // Permitir cualquier método HTTP
                .AllowCredentials();                // Permitir envío de cookies-autenticación
