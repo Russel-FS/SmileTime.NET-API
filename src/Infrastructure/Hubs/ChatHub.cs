@@ -140,7 +140,14 @@ namespace SmileTimeNET_API.Hubs
         {
             var onlineUsers = ConnectedUsers.Values
                 .Where(u => u.IsOnline)
-                .Select(u => new { u.UserId, u.Username, u.IsOnline });
+                .Select(u => new OnlineUserDTO
+                {
+                    UserId = u.UserId,
+                    Username = u.Username,
+                    IsOnline = u.IsOnline
+                });
+
+
 
             await Clients.Caller.SendAsync("OnlineUsers", onlineUsers);
         }
