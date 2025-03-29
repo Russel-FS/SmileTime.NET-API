@@ -11,5 +11,6 @@ namespace SmileTimeNET_API.src.Domain.Models.signalR
         public string ReceiverId { get; set; } = string.Empty;
         public bool IsTyping { get; set; }
         public int? ConversationId { get; set; }
+        public string? Username { get; set; } = string.Empty;
     }
 }
