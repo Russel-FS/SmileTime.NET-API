@@ -31,7 +31,8 @@ namespace SmileTimeNET_API.src.Aplication.services
         public async Task<Carousels> GetCarouselByIdAsync(int id)
         {
             return await _context.Carousels
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id) 
+                ?? throw new InvalidOperationException($"Carousel with ID {id} not found.");
         }
 
         public async Task<Carousels> CreateCarouselAsync(Carousels carousel)
@@ -41,7 +42,7 @@ namespace SmileTimeNET_API.src.Aplication.services
             return carousel;
         }
 
-        public async Task<Carousels> UpdateCarouselAsync(Carousels carousel)
+        public async Task<Carousels?> UpdateCarouselAsync(Carousels carousel)
         {
             var existingCarousel = await _context.Carousels.FindAsync(carousel.Id);
 

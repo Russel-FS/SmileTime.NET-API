@@ -9,24 +9,31 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using SmileTimeNET_API.Models;
 using SmileTimeNET_API.src.Domain.Interfaces;
+using SmileTimeNET_API.src.Aplication.services;
+
 
 namespace SmileTimeNET_API.src.Aplication.services
 {
     public class AuthServiceImpl : IAuthService
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly EmailService _emailService;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
 
         public AuthServiceImpl(
         UserManager<ApplicationUser> userManager,
+        EmailService emailService,
         RoleManager<IdentityRole> roleManager,
         IConfiguration configuration)
         {
             _userManager = userManager;
+            _emailService = emailService;
             _roleManager = roleManager;
             _configuration = configuration;
         }
+
+        
 
 
         /// <summary>
@@ -133,6 +140,31 @@ namespace SmileTimeNET_API.src.Aplication.services
             response.MessageResponse = "Error al registrar el usuario: " + string.Join(", ", result.Errors.Select(e => e.Description));
             return response;
         }
+        
+        public async Task<AuthResponse> ForgotPasswordAsync(string email)
+{
+    var user = await _userManager.FindByEmailAsync(email);
+    if (user == null)
+    {
+        return new AuthResponse { Success = false, MessageResponse = "No se encontró un usuario con ese correo" };
+    }
+
+    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+    var resetLink = $"{_configuration["FrontendUrl"]}/reset-password?token={token}&email={user.Email}";
+
+    if (!string.IsNullOrEmpty(user.Email))
+    {
+        await _emailService.SendEmailAsync(user.Email, "Recuperación de contraseña", 
+            $"Haz clic en el siguiente enlace para restablecer tu contraseña: {resetLink}");
+    }
+    else
+    {
+        return new AuthResponse { Success = false, MessageResponse = "El correo del usuario no está disponible." };
+    }
+
+    return new AuthResponse { Success = true, MessageResponse = "Se ha enviado un correo con instrucciones para recuperar la contraseña." };
+}
+
 
         /// <summary>
         /// Genera un token JWT para un usuario específico con una fecha de expiración determinada. 

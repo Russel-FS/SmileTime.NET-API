@@ -10,7 +10,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using SmileTimeNET_API.Models;
+using SmileTimeNET_API.src.Aplication.services;
 using SmileTimeNET_API.src.Domain.Interfaces;
+using SmileTimeNET_API.src.Domain.Models.auth;
 
 
 
@@ -79,6 +81,36 @@ namespace SmileTimeNET_API.rest
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error en registro");
+                return BadRequest(new { Success = false, MessageResponse = "Error interno del servidor" });
+            }
+        }
+
+        /// <summary>
+        /// Envía un enlace de recuperación de contraseña al correo del usuario.
+        /// </summary>
+        /// <param name="model">El email del usuario.</param>
+        /// <returns>Un mensaje indicando si el correo fue enviado con éxito.</returns>
+        [HttpPost("forgot-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword([FromBody] EmailModel model)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(model.Email))
+                {
+                    return BadRequest(new { Success = false, MessageResponse = "El email no puede estar vacío." });
+                }
+
+                var response = await _authService.ForgotPasswordAsync(model.Email);
+                if (!response.Success)
+                {
+                    return BadRequest(response);
+                }
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error en la recuperación de contraseña");
                 return BadRequest(new { Success = false, MessageResponse = "Error interno del servidor" });
             }
         }

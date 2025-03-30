@@ -29,6 +29,13 @@ namespace SmileTimeNET_API.src.Infrastructure.DependencyInjection
             services.AddScoped<IMessageService, MessageService>();
             return services;
         }
- 
+
+        public static IServiceCollection AddEmailServices(this IServiceCollection services)
+        {
+            services.AddScoped<EmailService>();
+            return services;
+        }
+
+
     }
 }

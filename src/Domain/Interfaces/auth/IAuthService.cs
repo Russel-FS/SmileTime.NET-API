@@ -11,6 +11,7 @@ namespace SmileTimeNET_API.src.Domain.Interfaces
     {
         Task<AuthResponse> LoginAsync(LoginModel model);
         Task<AuthResponse> RegisterAsync(RegisterModel model);
+        Task<AuthResponse> ForgotPasswordAsync(string email);
         Task<string> GenerateJwtTokenAsync(ApplicationUser user, DateTime expires);
     }
 }
