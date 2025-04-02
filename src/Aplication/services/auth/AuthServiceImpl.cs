@@ -14,7 +14,7 @@ namespace SmileTimeNET_API.src.Aplication.services
 {
     public class AuthServiceImpl : IAuthService
     {
-        private static readonly string[] AllowedRoles = { "Admin", "User", "Dentist" };
+        private readonly string USER_ROLE = "User";
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
@@ -91,7 +91,6 @@ namespace SmileTimeNET_API.src.Aplication.services
         {
             var response = new AuthResponse();
 
-            // Validación inicial de datos
             if (string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
             {
                 response.Success = false;
@@ -99,7 +98,6 @@ namespace SmileTimeNET_API.src.Aplication.services
                 return response;
             }
 
-            // Verificar si el usuario ya existe
             var existingEmail = await _userManager.FindByEmailAsync(model.Email ?? string.Empty);
             if (existingEmail != null)
             {
@@ -116,53 +114,30 @@ namespace SmileTimeNET_API.src.Aplication.services
                 return response;
             }
 
-            // Crear nuevo usuario
             var user = new ApplicationUser
             {
                 UserName = model.FullName,
                 Email = model.Email,
             };
 
-            // Crear usuario en la base de datos
             var result = await _userManager.CreateAsync(user, model.Password ?? string.Empty);
 
             if (result.Succeeded)
             {
                 try
                 {
-                    // Determinar el rol a asignar
-                    string roleToAssign = !string.IsNullOrEmpty(model.Role)
-                        && AllowedRoles.Contains(model.Role) ? model.Role : "User";
-
-                    // Crear el rol si no existe
-                    if (!await _roleManager.RoleExistsAsync(roleToAssign))
+                    // Siempre asignar rol "User"
+                    if (!await _roleManager.RoleExistsAsync(USER_ROLE))
                     {
-                        var roleCreateResult = await _roleManager.CreateAsync(new IdentityRole(roleToAssign));
-                        if (!roleCreateResult.Succeeded)
-                        {
-                            response.Success = false;
-                            response.MessageResponse = "Error al crear el rol: " +
-                                string.Join(", ", roleCreateResult.Errors.Select(e => e.Description));
-                            return response;
-                        }
+                        await _roleManager.CreateAsync(new IdentityRole(USER_ROLE));
                     }
 
-                    // Asignar el rol al usuario
-                    var roleResult = await _userManager.AddToRoleAsync(user, roleToAssign);
-                    if (!roleResult.Succeeded)
-                    {
-                        response.Success = false;
-                        response.MessageResponse = "Error al asignar el rol: " +
-                            string.Join(", ", roleResult.Errors.Select(e => e.Description));
-                        return response;
-                    }
-
+                    await _userManager.AddToRoleAsync(user, USER_ROLE);
+                    
                     var userRoles = (await _userManager.GetRolesAsync(user)).ToList();
-                    // Generar token JWT
                     var tokenExpiration = DateTime.Now.AddDays(60);
                     var token = await GenerateJwtTokenAsync(user, tokenExpiration);
 
-                    // Preparar respuesta exitosa
                     response.Success = true;
                     response.Token = token;
                     response.Email = user.Email ?? string.Empty;
@@ -176,14 +151,14 @@ namespace SmileTimeNET_API.src.Aplication.services
                 {
                     response.Success = false;
                     response.MessageResponse = "Error durante el proceso de registro: " + ex.Message;
-                    // Eliminar el usuario si falló la asignación de rol
                     await _userManager.DeleteAsync(user);
                     return response;
                 }
             }
+
             response.Success = false;
-            response.MessageResponse = "Error al registrar el usuario: " +
-       string.Join(", ", result.Errors.Select(e => e.Description));
+            response.MessageResponse = "Error al registrar el usuario: " + 
+                string.Join(", ", result.Errors.Select(e => e.Description));
             return response;
         }
 
