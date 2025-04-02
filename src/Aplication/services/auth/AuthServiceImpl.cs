@@ -47,7 +47,7 @@ namespace SmileTimeNET_API.src.Aplication.services
                 return response;
             }
 
-            var user = await _userManager.FindByNameAsync(model.Email ?? string.Empty);
+            var user = await _userManager.FindByEmailAsync(model.Email ?? string.Empty);
             if (user == null)
             {
                 response.Success = false;
@@ -112,9 +112,13 @@ namespace SmileTimeNET_API.src.Aplication.services
 
             if (result.Succeeded)
             {
-                if (await _roleManager.RoleExistsAsync("User"))
+                if (await _roleManager.RoleExistsAsync(model.Role ?? string.Empty))
                 {
-                    await _userManager.AddToRoleAsync(user, "User");
+                    await _userManager.AddToRoleAsync(user, model.Role ?? string.Empty);
+                }
+                else
+                {
+                    await _userManager.AddToRoleAsync(user, model.Role ?? "User");
                 }
 
                 var tokenExpiration = DateTime.Now.AddDays(60);
