@@ -7,7 +7,7 @@ namespace SmileTimeNET_API.src.Infrastructure.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")] 
+    [Authorize(Roles = "Admin")]
     public class AdminManagementController : ControllerBase
     {
         private readonly IAdminManagementService _adminService;
@@ -17,7 +17,7 @@ namespace SmileTimeNET_API.src.Infrastructure.Api.Controllers
             _adminService = adminService;
         }
 
-        [HttpGet]
+        [HttpGet("all")]
         public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetAllAdmins()
         {
             var admins = await _adminService.GetAllAdminsAsync();
