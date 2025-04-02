@@ -6,11 +6,12 @@ using SmileTimeNET_API.Data;
 using SmileTimeNET_API.Hubs;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using SmileTimeNET_API.src.Infrastructure.Data.Seeds; 
+using SmileTimeNET_API.src.Infrastructure.Data.Seeds;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
 using SmileTimeNET_API.src.Aplication.Mappings;
 using SmileTimeNET_API.src.Infrastructure.DependencyInjection;
+using SmileTimeNET_API.src.Aplication.services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,8 +60,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", builder =>
     {
-        builder.WithOrigins("http://localhost:4200") ;// Origen permitido
-        builder.WithOrigins("https://psychic-space-garbanzo-v6wprw59vv6xfx55r-4200.app.github.dev") // Origen permitido
+        builder.WithOrigins("http://localhost:4200") // Origen permitido
+        //builder.WithOrigins("https://psychic-space-garbanzo-v6wprw59vv6xfx55r-4200.app.github.dev") // Origen permitido
 
                .AllowAnyHeader()                   // Permitir cualquier header
                .AllowAnyMethod()                   // Permitir cualquier método HTTP
@@ -141,6 +142,8 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
+builder.Services.AddScoped<EmailService>();
+builder.Services.AddEmailServices();
 
 var app = builder.Build();
 
@@ -175,4 +178,5 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
+
 
