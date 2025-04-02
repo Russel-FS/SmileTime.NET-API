@@ -14,6 +14,7 @@ namespace SmileTimeNET_API.src.Aplication.services
 {
     public class AuthServiceImpl : IAuthService
     {
+        private static readonly string[] AllowedRoles = { "Admin", "User", "Dentist" };
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
@@ -62,6 +63,8 @@ namespace SmileTimeNET_API.src.Aplication.services
                 response.MessageResponse = "Contraseña incorrecta";
                 return response;
             }
+            // Obtener roles del usuario
+            var userRoles = (await _userManager.GetRolesAsync(user)).ToList();
 
             var tokenExpiration = DateTime.Now.AddDays(60);
             var token = await GenerateJwtTokenAsync(user, tokenExpiration);
@@ -70,6 +73,7 @@ namespace SmileTimeNET_API.src.Aplication.services
             response.Token = token;
             response.Email = user.Email ?? string.Empty;
             response.UserId = user.Id;
+            response.Roles = userRoles;
             response.TokenExpiration = tokenExpiration;
             response.MessageResponse = "Login exitoso";
 
@@ -87,6 +91,7 @@ namespace SmileTimeNET_API.src.Aplication.services
         {
             var response = new AuthResponse();
 
+            // Validación inicial de datos
             if (string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
             {
                 response.Success = false;
@@ -94,6 +99,7 @@ namespace SmileTimeNET_API.src.Aplication.services
                 return response;
             }
 
+            // Verificar si el usuario ya existe
             var existingUser = await _userManager.FindByEmailAsync(model.Email ?? string.Empty);
             if (existingUser != null)
             {
@@ -102,39 +108,74 @@ namespace SmileTimeNET_API.src.Aplication.services
                 return response;
             }
 
+            // Crear nuevo usuario
             var user = new ApplicationUser
             {
                 UserName = model.FullName,
                 Email = model.Email,
+                EmailConfirmed = true // Considera cambiar esto si implementas verificación por email
             };
 
+            // Crear usuario en la base de datos
             var result = await _userManager.CreateAsync(user, model.Password ?? string.Empty);
 
             if (result.Succeeded)
             {
-                if (await _roleManager.RoleExistsAsync(model.Role ?? string.Empty))
+                try
                 {
-                    await _userManager.AddToRoleAsync(user, model.Role ?? string.Empty);
+                    // Determinar el rol a asignar
+                    string roleToAssign = !string.IsNullOrEmpty(model.Role)
+                        && AllowedRoles.Contains(model.Role) ? model.Role : "User";
+
+                    // Crear el rol si no existe
+                    if (!await _roleManager.RoleExistsAsync(roleToAssign))
+                    {
+                        var roleCreateResult = await _roleManager.CreateAsync(new IdentityRole(roleToAssign));
+                        if (!roleCreateResult.Succeeded)
+                        {
+                            response.Success = false;
+                            response.MessageResponse = "Error al crear el rol: " +
+                                string.Join(", ", roleCreateResult.Errors.Select(e => e.Description));
+                            return response;
+                        }
+                    }
+
+                    // Asignar el rol al usuario
+                    var roleResult = await _userManager.AddToRoleAsync(user, roleToAssign);
+                    if (!roleResult.Succeeded)
+                    {
+                        response.Success = false;
+                        response.MessageResponse = "Error al asignar el rol: " +
+                            string.Join(", ", roleResult.Errors.Select(e => e.Description));
+                        return response;
+                    }
+
+                    var userRoles = (await _userManager.GetRolesAsync(user)).ToList();
+                    // Generar token JWT
+                    var tokenExpiration = DateTime.Now.AddDays(60);
+                    var token = await GenerateJwtTokenAsync(user, tokenExpiration);
+
+                    // Preparar respuesta exitosa
+                    response.Success = true;
+                    response.Token = token;
+                    response.Email = user.Email ?? string.Empty;
+                    response.UserId = user.Id;
+                    response.Roles = userRoles; 
+                    response.TokenExpiration = tokenExpiration;
+                    response.MessageResponse = "Registro exitoso";
+                    return response;
                 }
-                else
+                catch (Exception ex)
                 {
-                    await _userManager.AddToRoleAsync(user, model.Role ?? "User");
+                    response.Success = false;
+                    response.MessageResponse = "Error durante el proceso de registro: " + ex.Message;
+                    // Eliminar el usuario si falló la asignación de rol
+                    await _userManager.DeleteAsync(user);
+                    return response;
                 }
-
-                var tokenExpiration = DateTime.Now.AddDays(60);
-                var token = await GenerateJwtTokenAsync(user, tokenExpiration);
-
-                response.Success = true;
-                response.Token = token;
-                response.Email = user.Email ?? string.Empty;
-                response.UserId = user.Id;
-                response.TokenExpiration = tokenExpiration;
-                response.MessageResponse = "Registro exitoso";
-                return response;
             }
-
             response.Success = false;
-            response.MessageResponse = "Error al registrar el usuario: " + string.Join(", ", result.Errors.Select(e => e.Description));
+            response.MessageResponse = "Error al registrar el usuario: ";
             return response;
         }
 
