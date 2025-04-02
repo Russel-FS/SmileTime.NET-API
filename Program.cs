@@ -85,6 +85,10 @@ builder.Services.AddAuthServices();
 builder.Services.AddCarouselServices();
 // Configuracion de servicios de chat
 builder.Services.AddChatServices();
+// Configuracion de servicios de administración
+builder.Services.AddAdminServices();
+// Configuracion de servicios de dentistas
+builder.Services.AddDentistServices(); 
 // Configuracion mapper 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
 
