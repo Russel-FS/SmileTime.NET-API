@@ -6,7 +6,7 @@ using SmileTimeNET_API.Data;
 using SmileTimeNET_API.Hubs;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using SmileTimeNET_API.src.Infrastructure.Data.Seeds; 
+using SmileTimeNET_API.src.Infrastructure.Data.Seeds;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
 using SmileTimeNET_API.src.Aplication.Mappings;
@@ -59,7 +59,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", builder =>
     {
-        builder.WithOrigins("https://bookish-goggles-g467v66w49xvfv6qw-4200.app.github.dev") // Origen permitido
+        builder.WithOrigins("https://studious-journey-7vpgjpgqw664fwq6w-4200.app.github.dev", "http://localhost:4200") // Origen permitido
                .AllowAnyHeader()                   // Permitir cualquier header
                .AllowAnyMethod()                   // Permitir cualquier método HTTP
                .AllowCredentials();                // Permitir envío de cookies-autenticación
