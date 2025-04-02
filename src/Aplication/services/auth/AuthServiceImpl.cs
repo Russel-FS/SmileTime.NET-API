@@ -125,8 +125,7 @@ namespace SmileTimeNET_API.src.Aplication.services
             if (result.Succeeded)
             {
                 try
-                {
-                    // Siempre asignar rol "User"
+                { 
                     if (!await _roleManager.RoleExistsAsync(USER_ROLE))
                     {
                         await _roleManager.CreateAsync(new IdentityRole(USER_ROLE));
