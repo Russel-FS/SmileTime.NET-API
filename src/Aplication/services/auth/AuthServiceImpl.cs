@@ -100,11 +100,19 @@ namespace SmileTimeNET_API.src.Aplication.services
             }
 
             // Verificar si el usuario ya existe
-            var existingUser = await _userManager.FindByEmailAsync(model.Email ?? string.Empty);
-            if (existingUser != null)
+            var existingEmail = await _userManager.FindByEmailAsync(model.Email ?? string.Empty);
+            if (existingEmail != null)
             {
                 response.Success = false;
                 response.MessageResponse = "El email ya está registrado, por favor inicie sesión";
+                return response;
+            }
+
+            var existingUser = await _userManager.FindByNameAsync(model.FullName ?? string.Empty);
+            if (existingUser != null)
+            {
+                response.Success = false;
+                response.MessageResponse = $"El nombre de usuario '{model.FullName}' ya está en uso";
                 return response;
             }
 
@@ -113,7 +121,6 @@ namespace SmileTimeNET_API.src.Aplication.services
             {
                 UserName = model.FullName,
                 Email = model.Email,
-                EmailConfirmed = true // Considera cambiar esto si implementas verificación por email
             };
 
             // Crear usuario en la base de datos
@@ -160,7 +167,7 @@ namespace SmileTimeNET_API.src.Aplication.services
                     response.Token = token;
                     response.Email = user.Email ?? string.Empty;
                     response.UserId = user.Id;
-                    response.Roles = userRoles; 
+                    response.Roles = userRoles;
                     response.TokenExpiration = tokenExpiration;
                     response.MessageResponse = "Registro exitoso";
                     return response;
@@ -175,7 +182,8 @@ namespace SmileTimeNET_API.src.Aplication.services
                 }
             }
             response.Success = false;
-            response.MessageResponse = "Error al registrar el usuario: ";
+            response.MessageResponse = "Error al registrar el usuario: " +
+       string.Join(", ", result.Errors.Select(e => e.Description));
             return response;
         }
 
