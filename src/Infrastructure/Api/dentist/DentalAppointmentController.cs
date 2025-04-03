@@ -1,85 +1,129 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SmileTimeNET.Application.Services.Dentist;
 using SmileTimeNET.Domain.Entities.Dentist;
 
 namespace SmileTimeNET.Infrastructure.Api.Dentist
 {
+    [Authorize(Roles = "Dentist")]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/dental-appointments")]
     public class DentalAppointmentController : ControllerBase
     {
         private readonly ILogger<DentalAppointmentController> _logger;
+        private readonly IDentalAppointmentService _appointmentService;
 
-        public DentalAppointmentController(ILogger<DentalAppointmentController> logger)
+        public DentalAppointmentController(
+            ILogger<DentalAppointmentController> logger,
+            IDentalAppointmentService appointmentService)
         {
             _logger = logger;
+            _appointmentService = appointmentService;
         }
 
         [HttpPost("create")]
-        public async Task<ActionResult<AppointmentResponse>> CreateAppointment([FromBody] DentalAppointmentDto appointmentDto)
+        public async Task<ActionResult<DentalAppointment>> CreateAppointment([FromBody] DentalAppointmentDto appointmentDto)
         {
             try
             {
-                // Primero vamos a loguear los datos recibidos
-                _logger.LogInformation($"Datos recibidos: {JsonSerializer.Serialize(appointmentDto)}");
-
-                // Validamos que los datos requeridos no sean nulos
-                if (appointmentDto == null)
-                {
-                    return BadRequest(new AppointmentResponse 
-                    { 
-                        Success = false, 
-                        Message = "Los datos de la cita son requeridos" 
-                    });
-                }
-
-                var appointment = new DentalAppointment
-                {
-                    Date = appointmentDto.Date,
-                    Time = appointmentDto.Time,
-                    Duration = appointmentDto.Duration,
-                    Notes = appointmentDto.Notes ?? string.Empty,
-                    PatientId = appointmentDto.PatientId,
-                    Type = appointmentDto.Type,
-                    Status = "Pending"
-                };
-
-                // Creamos la respuesta asegurándonos de usar los datos del DTO
-                var response = new AppointmentResponse
-                {
-                    Success = true,
-                    Message = "Cita creada exitosamente",
-                    Data = new AppointmentData
-                    {
-                        Date = appointmentDto.Date,
-                        Time = appointmentDto.Time,
-                        Duration = appointmentDto.Duration,
-                        Type = appointmentDto.Type,
-                        Status = "Pending",
-                        PatientId = appointmentDto.PatientId,
-                        Notes = appointmentDto.Notes ?? string.Empty,
-                        PatientInfo = new PatientInfo
-                        {
-                            Name = appointmentDto.PatientInfo?.Name ?? string.Empty,
-                            Phone = appointmentDto.PatientInfo?.Phone ?? string.Empty,
-                            Status = appointmentDto.PatientInfo?.Status ?? "active"
-                        }
-                    }
-                };
-
-                // Logueamos la respuesta para verificar
-                _logger.LogInformation($"Respuesta: {JsonSerializer.Serialize(response)}");
-
-                return Ok(response);
+                var appointment = await _appointmentService.CreateAppointmentAsync(appointmentDto);
+                return Ok(appointment);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al crear la cita");
-                return StatusCode(500, new AppointmentResponse
-                {
-                    Success = false,
-                    Message = "Error interno del servidor"
-                });
+                return StatusCode(500, new { message = "Error interno del servidor" });
+            }
+        }
+
+        [HttpPut("update/{id}")]
+        public async Task<ActionResult<DentalAppointment>> UpdateAppointment(int id, [FromBody] DentalAppointmentDto appointmentDto)
+        {
+            try
+            {
+                var appointment = await _appointmentService.UpdateAppointmentAsync(id, appointmentDto);
+                return Ok(appointment);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al actualizar la cita");
+                return StatusCode(500, new { message = "Error interno del servidor" });
+            }
+        }
+
+        [HttpDelete("delete/{id}")]
+        public async Task<ActionResult> DeleteAppointment(int id)
+        {
+            try
+            {
+                var result = await _appointmentService.DeleteAppointmentAsync(id);
+                if (!result)
+                    return NotFound(new { message = $"Cita con ID {id} no encontrada" });
+
+                return Ok(new { message = "Cita eliminada exitosamente" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al eliminar la cita");
+                return StatusCode(500, new { message = "Error interno del servidor" });
+            }
+        }
+
+        [HttpGet("detail/{id}")]
+        public async Task<ActionResult<DentalAppointment>> GetAppointment(int id)
+        {
+            try
+            {
+                var appointment = await _appointmentService.GetAppointmentByIdAsync(id);
+                return Ok(appointment);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener la cita");
+                return StatusCode(500, new { message = "Error interno del servidor" });
+            }
+        }
+
+        [HttpGet("by-dentist/{dentistId}")]
+        public async Task<ActionResult<IEnumerable<DentalAppointment>>> GetDentistAppointments(string dentistId)
+        {
+            try
+            {
+                var appointments = await _appointmentService.GetAppointmentsByDentistIdAsync(dentistId);
+                return Ok(appointments);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener las citas del dentista");
+                return StatusCode(500, new { message = "Error interno del servidor" });
+            }
+        }
+
+        [HttpGet("by-patient/{patientId}")]
+        public async Task<ActionResult<IEnumerable<DentalAppointment>>> GetPatientAppointments(string patientId)
+        {
+            try
+            {
+                var appointments = await _appointmentService.GetAppointmentsByPatientIdAsync(patientId);
+                return Ok(appointments);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener las citas del paciente");
+                return StatusCode(500, new { message = "Error interno del servidor" });
             }
         }
     }
