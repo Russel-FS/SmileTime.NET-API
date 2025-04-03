@@ -17,8 +17,7 @@ namespace SmileTimeNET_API.Models
 
         [Required]
         public string? FullName { get; set; }
-
-        [Required]
+ 
         public string? Role { get; set; }
     }
 }
