@@ -16,6 +16,7 @@ namespace SmileTimeNET_API.src.Aplication.services
 {
     public class AuthServiceImpl : IAuthService
     {
+        private readonly string USER_ROLE = "User";
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly EmailService _emailService;
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -54,7 +55,7 @@ namespace SmileTimeNET_API.src.Aplication.services
                 return response;
             }
 
-            var user = await _userManager.FindByNameAsync(model.Email ?? string.Empty);
+            var user = await _userManager.FindByEmailAsync(model.Email ?? string.Empty);
             if (user == null)
             {
                 response.Success = false;
@@ -69,6 +70,8 @@ namespace SmileTimeNET_API.src.Aplication.services
                 response.MessageResponse = "Contraseña incorrecta";
                 return response;
             }
+            // Obtener roles del usuario
+            var userRoles = (await _userManager.GetRolesAsync(user)).ToList();
 
             var tokenExpiration = DateTime.Now.AddDays(60);
             var token = await GenerateJwtTokenAsync(user, tokenExpiration);
@@ -77,6 +80,7 @@ namespace SmileTimeNET_API.src.Aplication.services
             response.Token = token;
             response.Email = user.Email ?? string.Empty;
             response.UserId = user.Id;
+            response.Roles = userRoles;
             response.TokenExpiration = tokenExpiration;
             response.MessageResponse = "Login exitoso";
 
@@ -101,11 +105,19 @@ namespace SmileTimeNET_API.src.Aplication.services
                 return response;
             }
 
-            var existingUser = await _userManager.FindByEmailAsync(model.Email ?? string.Empty);
-            if (existingUser != null)
+            var existingEmail = await _userManager.FindByEmailAsync(model.Email ?? string.Empty);
+            if (existingEmail != null)
             {
                 response.Success = false;
                 response.MessageResponse = "El email ya está registrado, por favor inicie sesión";
+                return response;
+            }
+
+            var existingUser = await _userManager.FindByNameAsync(model.FullName ?? string.Empty);
+            if (existingUser != null)
+            {
+                response.Success = false;
+                response.MessageResponse = $"El nombre de usuario '{model.FullName}' ya está en uso";
                 return response;
             }
 
@@ -119,25 +131,40 @@ namespace SmileTimeNET_API.src.Aplication.services
 
             if (result.Succeeded)
             {
-                if (await _roleManager.RoleExistsAsync("User"))
-                {
-                    await _userManager.AddToRoleAsync(user, "User");
+                try
+                { 
+                    if (!await _roleManager.RoleExistsAsync(USER_ROLE))
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole(USER_ROLE));
+                    }
+
+                    await _userManager.AddToRoleAsync(user, USER_ROLE);
+                    
+                    var userRoles = (await _userManager.GetRolesAsync(user)).ToList();
+                    var tokenExpiration = DateTime.Now.AddDays(60);
+                    var token = await GenerateJwtTokenAsync(user, tokenExpiration);
+
+                    response.Success = true;
+                    response.Token = token;
+                    response.Email = user.Email ?? string.Empty;
+                    response.UserId = user.Id;
+                    response.Roles = userRoles;
+                    response.TokenExpiration = tokenExpiration;
+                    response.MessageResponse = "Registro exitoso";
+                    return response;
                 }
-
-                var tokenExpiration = DateTime.Now.AddDays(60);
-                var token = await GenerateJwtTokenAsync(user, tokenExpiration);
-
-                response.Success = true;
-                response.Token = token;
-                response.Email = user.Email ?? string.Empty;
-                response.UserId = user.Id;
-                response.TokenExpiration = tokenExpiration;
-                response.MessageResponse = "Registro exitoso";
-                return response;
+                catch (Exception ex)
+                {
+                    response.Success = false;
+                    response.MessageResponse = "Error durante el proceso de registro: " + ex.Message;
+                    await _userManager.DeleteAsync(user);
+                    return response;
+                }
             }
 
             response.Success = false;
-            response.MessageResponse = "Error al registrar el usuario: " + string.Join(", ", result.Errors.Select(e => e.Description));
+            response.MessageResponse = "Error al registrar el usuario: " + 
+                string.Join(", ", result.Errors.Select(e => e.Description));
             return response;
         }
         

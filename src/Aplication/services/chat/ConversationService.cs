@@ -230,8 +230,7 @@ namespace SmileTimeNET_API.src.Aplication.services.chat
                 var conversationEntity = _mapper.Map<Conversation>(conversation);
 
                 // 
-                conversationEntity.Messages = new List<Message>();
-
+           
                 await _context.Conversations.AddAsync(conversationEntity);
                 await _context.SaveChangesAsync();
 

@@ -1,8 +1,11 @@
 using System.Collections.Concurrent;
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using SmileTimeNET_API.Models;
+using SmileTimeNET_API.src.Aplication.DTOs.chat;
+using SmileTimeNET_API.src.Aplication.DTOs.signalR;
 using SmileTimeNET_API.src.Domain.Models.signalR;
 
 namespace SmileTimeNET_API.Hubs
@@ -46,7 +49,7 @@ namespace SmileTimeNET_API.Hubs
                     return oldValue;
                 });
                 Console.WriteLine($"Usuario Conectado: {connectedUser.ToString()}");
-                await Clients.Others.SendAsync("UserConnected", new
+                await Clients.Others.SendAsync("UserConnected", new OnlineUserDTO
                 {
                     UserId = userId,
                     Username = connectedUser.Username,
@@ -75,7 +78,12 @@ namespace SmileTimeNET_API.Hubs
                 //  log
                 Console.WriteLine($"Usuario Desconectado: {user_.ToString()}");
                 // notificar a los demas usuarios que se desconecto
-                await Clients.Others.SendAsync("UserDisconnected", userId);
+                await Clients.Others.SendAsync("UserDisconnected", new OnlineUserDTO
+                {
+                    UserId = userId,
+                    Username = user_.Username,
+                    IsOnline = false
+                });
                 // remover usuario de la lista de conectados
                 ConnectedUsers.TryRemove(userId, out _);
             }
@@ -99,26 +107,19 @@ namespace SmileTimeNET_API.Hubs
         /// <param name="recipientUserId">El ID del usuario al que se va a enviar el mensaje privado.</param>
         /// <param name="message">El mensaje que se va a enviar.</param>
         /// <returns>Una tarea que representa la operacion asincrona de envio de mensaje.</returns>
-        public async Task SendPrivateMessage(string recipientUserId, string message)
+        public async Task SendPrivateMessage(PrivateMessageDTO message)
         {
+            Console.WriteLine($"Mensaje Recibido: {JsonSerializer.Serialize(message)}");
+            var recipientUserId = message.RecipientId;
             var senderId = Context?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(senderId))
                 return;
 
             if (ConnectedUsers.TryGetValue(recipientUserId, out var recipient))
             {
-                var senderUser = ConnectedUsers.GetValueOrDefault(senderId);
-                var messageData = new
-                {
-                    SenderId = senderId,
-                    SenderName = senderUser?.Username,
-                    Message = message,
-                    Timestamp = DateTime.UtcNow
-                };
-
-                await Clients.Client(recipient.ConnectionId ?? string.Empty).SendAsync("ReceivePrivateMessage", messageData);
-
-                await Clients.Caller.SendAsync("ReceivePrivateMessage", messageData);
+                await Clients.Client(recipient.ConnectionId ?? string.Empty)
+                       .SendAsync("ReceivePrivateMessage", message);
+                await Clients.Caller.SendAsync("ReceivePrivateMessage", message);
             }
         }
 
@@ -144,7 +145,14 @@ namespace SmileTimeNET_API.Hubs
         {
             var onlineUsers = ConnectedUsers.Values
                 .Where(u => u.IsOnline)
-                .Select(u => new { u.UserId, u.Username, u.IsOnline });
+                .Select(u => new OnlineUserDTO
+                {
+                    UserId = u.UserId,
+                    Username = u.Username,
+                    IsOnline = u.IsOnline
+                });
+
+
 
             await Clients.Caller.SendAsync("OnlineUsers", onlineUsers);
         }

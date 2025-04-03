@@ -30,6 +30,7 @@ namespace SmileTimeNET_API.src.Infrastructure.DependencyInjection
             return services;
         }
 
+<<<<<<< HEAD
         public static IServiceCollection AddEmailServices(this IServiceCollection services)
         {
             services.AddScoped<EmailService>();
@@ -37,5 +38,18 @@ namespace SmileTimeNET_API.src.Infrastructure.DependencyInjection
         }
 
 
+=======
+        public static IServiceCollection AddAdminServices(this IServiceCollection services)
+        {
+            services.AddScoped<IAdminManagementService, AdminManagementServiceImpl>();
+            return services;
+        }
+
+        public static IServiceCollection AddDentistServices(this IServiceCollection services)
+        {
+            services.AddScoped<IDentistManagementService, DentistManagementServiceImpl>();
+            return services;
+        }
+>>>>>>> a735ac2c24e64e73e6bf2722f579aa2100a2c043
     }
 }

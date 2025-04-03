@@ -60,8 +60,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", builder =>
     {
-        builder.WithOrigins("http://localhost:4200") // Origen permitido
-        //builder.WithOrigins("https://psychic-space-garbanzo-v6wprw59vv6xfx55r-4200.app.github.dev") // Origen permitido
+        // Configuracion de CORS para permitir el acceso desde el cliente Angular
+        builder.WithOrigins("https://studious-journey-7vpgjpgqw664fwq6w-4200.app.github.dev", "http://localhost:4200") // Origen permitido
 
                .AllowAnyHeader()                   // Permitir cualquier header
                .AllowAnyMethod()                   // Permitir cualquier método HTTP
@@ -88,6 +88,10 @@ builder.Services.AddAuthServices();
 builder.Services.AddCarouselServices();
 // Configuracion de servicios de chat
 builder.Services.AddChatServices();
+// Configuracion de servicios de administración
+builder.Services.AddAdminServices(); // Ensure AdminServiceExtensions is defined and imported
+// Configuracion de servicios de dentistas
+builder.Services.AddDentistServices(); 
 // Configuracion mapper 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
 
