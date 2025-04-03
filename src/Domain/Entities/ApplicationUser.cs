@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using SmileTimeNET.Domain.Entities.Dentist;
 using System;
 using System.Collections.Generic;
 
@@ -20,5 +21,9 @@ namespace SmileTimeNET_API.Models
         public ICollection<ConversationParticipant>? ConversationParticipants { get; set; } = new List<ConversationParticipant>();
         public ICollection<Message>? Messages { get; set; } = new List<Message>();
         public ICollection<MessageStatus>? MessageStatuses { get; set; } = new List<MessageStatus>();
+
+        // Relaciones para citas
+        public virtual ICollection<DentalAppointment>? PatientAppointments { get; set; } = new List<DentalAppointment>();
+        public virtual ICollection<DentalAppointment>? DentistAppointments { get; set; } = new List<DentalAppointment>();
     }
 }

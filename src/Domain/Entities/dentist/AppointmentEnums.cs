@@ -2,24 +2,22 @@ namespace SmileTimeNET.Domain.Entities.Dentist
 {
     public enum AppointmentType
     {
-        Regular,
-        Emergency,
-        Followup,
-        Cleaning
+        Limpieza,
+        Consulta,
+        Tratamiento
     }
 
     public enum AppointmentStatus
     {
-        Scheduled,
-        Completed,
-        Cancelled,
-        NoShow
+        Pendiente,
+        Confirmada,
+        Cancelada
     }
 
     public enum PatientStatus
     {
         Active,
-        Inactive,
-        Pending
+        Pending,
+        Inactive
     }
 }

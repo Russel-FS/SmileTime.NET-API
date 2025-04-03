@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using SmileTimeNET_API.Models;
 
 namespace SmileTimeNET.Domain.Entities.Dentist
 {
@@ -29,5 +30,11 @@ namespace SmileTimeNET.Domain.Entities.Dentist
         public int Duration { get; set; }
         
         public string Notes { get; set; } = string.Empty;
+        
+        [ForeignKey("PatientId")]
+        public virtual ApplicationUser Patient { get; set; }
+        
+        [ForeignKey("DentistId")]
+        public virtual ApplicationUser Dentist { get; set; }
     }
 }

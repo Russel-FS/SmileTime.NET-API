@@ -8,6 +8,7 @@ using SmileTimeNET_API.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using SmileTimeNET_API.src.Domain.Models;
 using System.Reflection.Emit;
+using SmileTimeNET.Domain.Entities.Dentist;
 
 namespace SmileTimeNET_API.Data
 {
@@ -24,6 +25,7 @@ namespace SmileTimeNET_API.Data
         public DbSet<Message> Messages { get; set; }
         public DbSet<MessageStatus> MessageStatuses { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
+        public DbSet<DentalAppointment> DentalAppointments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -85,6 +87,20 @@ namespace SmileTimeNET_API.Data
                 entity.HasOne(a => a.Message)
                     .WithMany(m => m.Attachments)
                     .HasForeignKey(a => a.MessageId);
+            });
+
+            // DentalAppointment
+            builder.Entity<DentalAppointment>(entity =>
+            {
+                entity.HasOne(d => d.Patient)
+                    .WithMany(u => u.PatientAppointments)
+                    .HasForeignKey(d => d.PatientId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(d => d.Dentist)
+                    .WithMany(u => u.DentistAppointments)
+                    .HasForeignKey(d => d.DentistId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }
