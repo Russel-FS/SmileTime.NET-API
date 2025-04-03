@@ -15,7 +15,7 @@ namespace SmileTimeNET.Domain.Entities.Dentist
         public string? Phone { get; set; }
         
         [Required]
-        public PatientStatus Status { get; set; }
+        public string Status { get; set; } = string.Empty;
         
         public DateTime? LastVisit { get; set; }
         

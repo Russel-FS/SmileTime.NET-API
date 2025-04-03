@@ -21,10 +21,10 @@ namespace SmileTimeNET.Domain.Entities.Dentist
         public string Time { get; set; } = string.Empty;
         
         [Required]
-        public AppointmentType Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         
         [Required]
-        public AppointmentStatus Status { get; set; }
+        public string Status { get; set; } = string.Empty;
         
         [Required]
         public int Duration { get; set; }
