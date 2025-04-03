@@ -205,5 +205,32 @@ namespace SmileTimeNET_API.src.Infrastructure.Api
                 return StatusCode(500, new { message = "Error al obtener los pacientes", error = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Obtiene todos los usuarios sin importar el rol.
+        /// </summary>
+        /// <returns>
+        /// Una enumeración de <see cref="UserDTO"/> que representa todos los usuarios.
+        /// </returns>
+        /// <response code="200">Usuarios encontrados.</response>
+        /// <response code="401">Usuario no autenticado.</response>
+        /// <response code="500">Error al obtener los usuarios.</response>
+        [HttpGet("all-users")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized();
+
+                var users = await _conversationService.GetAllUsersAsync(userId);
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener los usuarios", error = ex.Message });
+            }
+        }
     }
 }

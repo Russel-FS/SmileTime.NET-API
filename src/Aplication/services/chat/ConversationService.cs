@@ -292,5 +292,32 @@ namespace SmileTimeNET_API.src.Aplication.services.chat
 
             return patients;
         }
+
+        public async Task<IEnumerable<UserDTO>> GetAllUsersAsync(string userId)
+        {
+            // Primero obtenemos los usuarios
+            var users = await _context.Users
+                .Where(u => u.Id != userId)
+                .ToListAsync();
+
+            var userDtos = new List<UserDTO>();
+
+            // Luego procesamos los roles 
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                userDtos.Add(new UserDTO
+                {
+                    UserId = user.Id,
+                    UserName = user.UserName,
+                    Avatar = user.Avatar,
+                    LastActive = user.LastActive,
+                    Role = roles.FirstOrDefault() ?? "User",
+                    IsOnline = user.IsActive
+                });
+            }
+
+            return userDtos;
+        }
     }
 }

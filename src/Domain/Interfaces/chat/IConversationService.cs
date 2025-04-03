@@ -17,5 +17,6 @@ namespace SmileTimeNET_API.src.Domain.Interfaces
         Task<ConversationDto> CreateConversationAsync(ConversationDto conversation);
         Task<IEnumerable<UserDTO>> GetUserDentistsAsync(string userId);
         Task<IEnumerable<UserDTO>> GetUserPatientsAsync(string userId);
+        Task<IEnumerable<UserDTO>> GetAllUsersAsync(string userId);
     }
 }
