@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using SmileTimeNET.Application.Services.Dentist;
 using SmileTimeNET_API.src.Aplication.services;
 using SmileTimeNET_API.src.Aplication.services.chat;
 using SmileTimeNET_API.src.Aplication.services.dentist;
@@ -46,6 +47,12 @@ namespace SmileTimeNET_API.src.Infrastructure.DependencyInjection
         public static IServiceCollection AddPacientServices(this IServiceCollection services)
         {
             services.AddScoped<IPacientManagementService, PacientManagementServiceImpl>();
+            return services;
+        }
+
+        public static IServiceCollection AddAppointmentServices(this IServiceCollection services)
+        {
+            services.AddScoped<IDentalAppointmentService, DentalAppointmentService>();
             return services;
         }
     }

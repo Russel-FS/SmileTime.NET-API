@@ -50,6 +50,7 @@ builder.Services.AddSwaggerGen(options =>
 }); // Agrega soporte para Swagger
 
 builder.Services.AddSignalR(); // Agrega soporte para SignalR
+builder.Services.AddHttpContextAccessor(); 
 builder.Services.AddControllers().AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -91,6 +92,8 @@ builder.Services.AddAdminServices();
 builder.Services.AddDentistServices();
 // Configuracion de servicios de pacientes
 builder.Services.AddPacientServices(); 
+// Configuracion de servicios de citas dentales
+builder.Services.AddAppointmentServices();
 // Configuracion mapper 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
 
@@ -102,6 +105,7 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequiredLength = 6; // Longitud mínima de la contraseña: (comentario) no modificar esto para los que revisen el código
 });
 
+ 
 
 // Verificar si la clave JWT key si existe o esta configurado
 var jwtKey = builder.Configuration["Jwt:Key"];
