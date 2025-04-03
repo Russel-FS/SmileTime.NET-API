@@ -11,6 +11,11 @@ namespace SmileTimeNET_API.Models
         public DateTime? LastActive { get; set; }
         public bool IsActive { get; set; }
 
+        // Campos específicos para dentistas
+        public string? Specialization { get; set; }
+        public string? FullName { get; set; }
+        public bool Active { get; set; } = true;
+
         // Navegaciones
         public ICollection<ConversationParticipant>? ConversationParticipants { get; set; } = new List<ConversationParticipant>();
         public ICollection<Message>? Messages { get; set; } = new List<Message>();

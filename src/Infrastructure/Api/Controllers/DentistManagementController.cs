@@ -34,7 +34,7 @@ namespace SmileTimeNET_API.src.Infrastructure.Api.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateDentist([FromBody] RegisterModel model)
+        public async Task<IActionResult> CreateDentist([FromBody] DentistRegisterModel model)
         {
             var result = await _dentistService.CreateDentistFromUserAsync(model);
             if (!result)

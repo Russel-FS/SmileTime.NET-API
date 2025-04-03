@@ -73,12 +73,20 @@ namespace SmileTimeNET_API.src.Aplication.services
             return true;
         }
 
-        public async Task<bool> CreateDentistFromUserAsync(RegisterModel model)
+        public async Task<bool> CreateDentistFromUserAsync(DentistRegisterModel model)
         { 
             var authResponse = await _authService.RegisterAsync(model);
             
             if (!authResponse.Success)
                 return false;
+
+            var user = await _userManager.FindByIdAsync(authResponse.UserId);
+            if (user != null)
+            { 
+                user.Specialization = model.Specialization;
+                user.Active = model.Active;
+                await _userManager.UpdateAsync(user);
+            }
 
             // Asignar rol de dentista
             return await AssignDentistRoleAsync(authResponse.UserId);
