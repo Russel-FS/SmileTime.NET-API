@@ -59,7 +59,7 @@ namespace SmileTimeNET.Application.Services.Dentist
                 Duration = appointmentDto.Duration,
                 Notes = appointmentDto.Notes ?? string.Empty,
                 PatientId = appointmentDto.PatientId,
-                DentistId = dentistId, 
+                DentistId = dentistId,
                 Type = appointmentDto.Type,
                 Status = "Pending"
             };
@@ -122,7 +122,7 @@ namespace SmileTimeNET.Application.Services.Dentist
                 {
                     Name = appointment.Patient?.UserName ?? string.Empty,
                     Phone = appointment.Patient?.PhoneNumber ?? string.Empty,
-                    Status = appointment.Patient?.IsActive == true ? "active" : "inactive"
+                    Status = appointment.Patient?.Active == true ? "active" : "inactive"
                 }
             };
         }
