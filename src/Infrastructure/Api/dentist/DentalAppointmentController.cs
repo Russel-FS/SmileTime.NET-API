@@ -105,6 +105,10 @@ namespace SmileTimeNET.Infrastructure.Api.Dentist
                 var appointments = await _appointmentService.GetAppointmentsByDentistIdAsync(dentistId);
                 return Ok(appointments);
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener las citas del dentista");
@@ -119,6 +123,10 @@ namespace SmileTimeNET.Infrastructure.Api.Dentist
             {
                 var appointments = await _appointmentService.GetAppointmentsByPatientIdAsync(patientId);
                 return Ok(appointments);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
             }
             catch (Exception ex)
             {
