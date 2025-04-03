@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -97,12 +98,13 @@ namespace SmileTimeNET.Infrastructure.Api.Dentist
             }
         }
 
-        [HttpGet("by-dentist/{dentistId}")]
-        public async Task<ActionResult<IEnumerable<DentalAppointment>>> GetDentistAppointments(string dentistId)
+        [HttpGet("my-appointments")]
+        public async Task<ActionResult<IEnumerable<DentalAppointment>>> GetMyAppointments()
         {
             try
             {
-                var appointments = await _appointmentService.GetAppointmentsByDentistIdAsync(dentistId);
+                var dentistId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var appointments = await _appointmentService.GetAppointmentsByDentistIdAsync(dentistId ?? string.Empty);
                 return Ok(appointments);
             }
             catch (UnauthorizedAccessException ex)
@@ -121,6 +123,7 @@ namespace SmileTimeNET.Infrastructure.Api.Dentist
         {
             try
             {
+
                 var appointments = await _appointmentService.GetAppointmentsByPatientIdAsync(patientId);
                 return Ok(appointments);
             }
