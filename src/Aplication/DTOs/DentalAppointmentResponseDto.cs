@@ -12,6 +12,7 @@ namespace SmileTimeNET.Infrastructure.Api.Dentist
         public string Date { get; set; } = string.Empty;
         public string Time { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;  // Añadido Status
         public int Duration { get; set; }
         public string Notes { get; set; } = string.Empty;
     }

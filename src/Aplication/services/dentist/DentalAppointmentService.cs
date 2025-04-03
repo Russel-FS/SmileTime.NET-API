@@ -115,6 +115,7 @@ namespace SmileTimeNET.Application.Services.Dentist
                     Date = appointment.Date.ToString("yyyy-MM-dd"),
                     Time = appointment.Time,
                     Type = appointment.Type,
+                    Status = appointment.Status,  // Añadido Status
                     Duration = appointment.Duration,
                     Notes = appointment.Notes
                 },
