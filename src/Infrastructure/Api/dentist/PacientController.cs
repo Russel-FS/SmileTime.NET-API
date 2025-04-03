@@ -6,7 +6,7 @@ using SmileTimeNET_API.src.Domain.Interfaces;
 
 namespace SmileTimeNET_API.Infrastructure.Api.Dentist
 {
-    [Authorize]
+   // [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class PacientController : ControllerBase
