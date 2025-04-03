@@ -88,7 +88,9 @@ builder.Services.AddChatServices();
 // Configuracion de servicios de administración
 builder.Services.AddAdminServices();
 // Configuracion de servicios de dentistas
-builder.Services.AddDentistServices(); 
+builder.Services.AddDentistServices();
+// Configuracion de servicios de pacientes
+builder.Services.AddPacientServices(); 
 // Configuracion mapper 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
 
