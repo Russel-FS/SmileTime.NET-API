@@ -52,6 +52,8 @@ if (string.IsNullOrEmpty(jwtKey))
 {
     throw new ArgumentNullException("Jwt:Key", "⚠️ Jwt:Key no existe o no es válido");
 }
+//agrega la llave flores
+
 
 // Configuracion JWT
 builder.Services.AddAuthentication(options =>
