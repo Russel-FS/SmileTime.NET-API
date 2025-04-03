@@ -151,5 +151,59 @@ namespace SmileTimeNET_API.src.Infrastructure.Api
                 return StatusCode(500, new { message = "Error al crear la conversación", error = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Obtiene los dentistas del usuario autenticado.
+        /// </summary>
+        /// <returns>
+        /// Una enumeraci n de <see cref="UserDTO"/> que representa los dentistas del usuario autenticado.
+        /// </returns>
+        /// <response code="200">Dentistas encontrados.</response>
+        /// <response code="401">Usuario no autenticado.</response>
+        /// <response code="500">Error al obtener los dentistas.</response>
+        [HttpGet("dentists")]
+        public async Task<IActionResult> GetDentists()
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized();
+
+                var dentists = await _conversationService.GetUserDentistsAsync(userId);
+                return Ok(dentists);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener los dentistas", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Obtiene los pacientes del usuario autenticado.
+        /// </summary>
+        /// <returns>
+        /// Una enumeraci n de <see cref="UserDTO"/> que representa los pacientes del usuario autenticado.
+        /// </returns>
+        /// <response code="200">Pacientes encontrados.</response>
+        /// <response code="401">Usuario no autenticado.</response>
+        /// <response code="500">Error al obtener los pacientes.</response>
+        [HttpGet("patients")]
+        public async Task<IActionResult> GetPatients()
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized();
+
+                var patients = await _conversationService.GetUserPatientsAsync(userId);
+                return Ok(patients);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener los pacientes", error = ex.Message });
+            }
+        }
     }
 }

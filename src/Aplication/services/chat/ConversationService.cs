@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SmileTimeNET_API.Data;
 using SmileTimeNET_API.Models;
@@ -17,15 +18,17 @@ namespace SmileTimeNET_API.src.Aplication.services.chat
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly UserManager<ApplicationUser> _userManager;
         /// <summary>
         ///  Inicializas una nueva instancia de la clase ConversationService.
         /// </summary>
         /// <param name="context">El contexto de la base de datos.</param>
 
-        public ConversationService(ApplicationDbContext context, IMapper mapper)
+        public ConversationService(ApplicationDbContext context, IMapper mapper, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _mapper = mapper;
+            _userManager = userManager;
         }
 
         /// <summary>
@@ -242,5 +245,52 @@ namespace SmileTimeNET_API.src.Aplication.services.chat
             }
         }
 
+        public async Task<IEnumerable<UserDTO>> GetUserDentistsAsync(string userId)
+        {
+            var users = await _context.Users.ToListAsync();
+            var dentists = new List<UserDTO>();
+
+            foreach (var user in users)
+            {
+                if (await _userManager.IsInRoleAsync(user, "Dentist"))
+                {
+                    dentists.Add(new UserDTO
+                    {
+                        UserId = user.Id,
+                        UserName = user.UserName,
+                        Avatar = user.Avatar,
+                        LastActive = user.LastActive,
+                        Role = "Dentist",
+                        IsOnline = user.IsActive
+                    });
+                }
+            }
+
+            return dentists;
+        }
+
+        public async Task<IEnumerable<UserDTO>> GetUserPatientsAsync(string userId)
+        {
+            var users = await _context.Users.ToListAsync();
+            var patients = new List<UserDTO>();
+
+            foreach (var user in users)
+            {
+                if (await _userManager.IsInRoleAsync(user, "User"))
+                {
+                    patients.Add(new UserDTO
+                    {
+                        UserId = user.Id,
+                        UserName = user.UserName,
+                        Avatar = user.Avatar,
+                        LastActive = user.LastActive,
+                        Role = "User",
+                        IsOnline = user.IsActive
+                    });
+                }
+            }
+
+            return patients;
+        }
     }
 }

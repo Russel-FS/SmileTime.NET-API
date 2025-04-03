@@ -19,6 +19,7 @@ namespace SmileTimeNET_API.src.Aplication.services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
 
+
         public AuthServiceImpl(
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager,
