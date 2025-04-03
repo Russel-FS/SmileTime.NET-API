@@ -27,19 +27,42 @@ namespace SmileTimeNET_API.src.Infrastructure.Api.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateAdmin([FromBody] RegisterModel model)
         {
-            var result = await _adminService.CreateAdminFromUserAsync(model);
-            if (!result)
-                return BadRequest("No se pudo crear el administrador");
-            return Ok("Administrador creado exitosamente");
+            try
+            {
+                var result = await _adminService.CreateAdminFromUserAsync(model);
+                if (!result)
+                    return BadRequest("No se pudo crear el administrador");
+                return Ok("Administrador creado exitosamente");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
         }
 
         [HttpPost("assign/{userId}")]
         public async Task<IActionResult> AssignAdminRole(string userId)
         {
-            var result = await _adminService.AssignAdminRoleAsync(userId);
-            if (!result)
-                return BadRequest("No se pudo asignar el rol de administrador");
-            return Ok("Rol de administrador asignado exitosamente");
+            try
+            {
+                var result = await _adminService.AssignAdminRoleAsync(userId);
+                if (!result)
+                    return BadRequest("No se pudo asignar el rol de administrador");
+                return Ok("Rol de administrador asignado exitosamente");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
+
         }
 
         [HttpDelete("remove-role/{userId}")]
