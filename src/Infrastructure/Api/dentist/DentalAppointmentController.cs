@@ -80,7 +80,7 @@ namespace SmileTimeNET.Infrastructure.Api.Dentist
         }
 
         [HttpGet("detail/{id}")]
-        public async Task<ActionResult<DentalAppointment>> GetAppointment(int id)
+        public async Task<ActionResult<DentalAppointmentResponseDto>> GetAppointment(int id)
         {
             try
             {
@@ -99,7 +99,7 @@ namespace SmileTimeNET.Infrastructure.Api.Dentist
         }
 
         [HttpGet("my-appointments")]
-        public async Task<ActionResult<IEnumerable<DentalAppointment>>> GetMyAppointments()
+        public async Task<ActionResult<IEnumerable<DentalAppointmentResponseDto>>> GetMyAppointments()
         {
             try
             {
@@ -119,7 +119,7 @@ namespace SmileTimeNET.Infrastructure.Api.Dentist
         }
 
         [HttpGet("by-patient/{patientId}")]
-        public async Task<ActionResult<IEnumerable<DentalAppointment>>> GetPatientAppointments(string patientId)
+        public async Task<ActionResult<IEnumerable<DentalAppointmentResponseDto>>> GetPatientAppointments(string patientId)
         {
             try
             {

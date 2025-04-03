@@ -105,18 +105,42 @@ namespace SmileTimeNET.Application.Services.Dentist
             return true;
         }
 
-        public async Task<DentalAppointment> GetAppointmentByIdAsync(int id)
+        private DentalAppointmentResponseDto MapToResponseDto(DentalAppointment appointment)
+        {
+            return new DentalAppointmentResponseDto
+            {
+                Appointment = new AppointmentDto
+                {
+                    PatientId = appointment.PatientId,
+                    Date = appointment.Date.ToString("yyyy-MM-dd"),
+                    Time = appointment.Time,
+                    Type = appointment.Type,
+                    Duration = appointment.Duration,
+                    Notes = appointment.Notes
+                },
+                PatientInfo = new PatientInfoDto
+                {
+                    Name = appointment.Patient?.UserName ?? string.Empty,
+                    Phone = appointment.Patient?.PhoneNumber ?? string.Empty,
+                    Status = appointment.Patient?.IsActive == true ? "active" : "inactive"
+                }
+            };
+        }
+
+        public async Task<DentalAppointmentResponseDto> GetAppointmentByIdAsync(int id)
         {
             ValidateDentistRole();
             var appointment = await _context.DentalAppointments
                 .Include(a => a.Patient)
-                .Include(a => a.Dentist)
                 .FirstOrDefaultAsync(a => a.Id == id && a.DentistId == GetCurrentDentistId());
 
-            return appointment ?? throw new KeyNotFoundException($"Cita con ID {id} no encontrada o no pertenece al dentista actual");
+            if (appointment == null)
+                throw new KeyNotFoundException($"Cita con ID {id} no encontrada o no pertenece al dentista actual");
+
+            return MapToResponseDto(appointment);
         }
 
-        public async Task<IEnumerable<DentalAppointment>> GetAppointmentsByDentistIdAsync(string dentistId)
+        public async Task<IEnumerable<DentalAppointmentResponseDto>> GetAppointmentsByDentistIdAsync(string dentistId)
         {
             ValidateDentistRole();
             var currentDentistId = GetCurrentDentistId();
@@ -126,23 +150,27 @@ namespace SmileTimeNET.Application.Services.Dentist
                 throw new UnauthorizedAccessException("Solo puede ver sus propias citas");
             }
 
-            return await _context.DentalAppointments
+            var appointments = await _context.DentalAppointments
                 .Include(a => a.Patient)
                 .Where(a => a.DentistId == dentistId)
                 .OrderByDescending(a => a.Date)
                 .ThenBy(a => a.Time)
                 .ToListAsync();
+
+            return appointments.Select(MapToResponseDto);
         }
 
-        public async Task<IEnumerable<DentalAppointment>> GetAppointmentsByPatientIdAsync(string patientId)
+        public async Task<IEnumerable<DentalAppointmentResponseDto>> GetAppointmentsByPatientIdAsync(string patientId)
         {
             ValidateDentistRole();
-            return await _context.DentalAppointments
-                .Include(a => a.Dentist)
+            var appointments = await _context.DentalAppointments
+                .Include(a => a.Patient)
                 .Where(a => a.PatientId == patientId && a.DentistId == GetCurrentDentistId())
                 .OrderByDescending(a => a.Date)
                 .ThenBy(a => a.Time)
                 .ToListAsync();
+
+            return appointments.Select(MapToResponseDto);
         }
     }
 }

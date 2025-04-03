@@ -8,8 +8,8 @@ namespace SmileTimeNET.Application.Services.Dentist
         Task<DentalAppointment> CreateAppointmentAsync(DentalAppointmentDto appointmentDto);
         Task<DentalAppointment> UpdateAppointmentAsync(int id, DentalAppointmentDto appointmentDto);
         Task<bool> DeleteAppointmentAsync(int id);
-        Task<DentalAppointment> GetAppointmentByIdAsync(int id);
-        Task<IEnumerable<DentalAppointment>> GetAppointmentsByDentistIdAsync(string dentistId);
-        Task<IEnumerable<DentalAppointment>> GetAppointmentsByPatientIdAsync(string patientId);
+        Task<DentalAppointmentResponseDto> GetAppointmentByIdAsync(int id);
+        Task<IEnumerable<DentalAppointmentResponseDto>> GetAppointmentsByDentistIdAsync(string dentistId);
+        Task<IEnumerable<DentalAppointmentResponseDto>> GetAppointmentsByPatientIdAsync(string patientId);
     }
 }
